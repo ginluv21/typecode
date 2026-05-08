@@ -1,0 +1,7 @@
+{} [] () <> ; : && ||
+int main(void) { return 0; }
+if (x > 0 && y < 10) {}
+arr[i] = ptr->value;
+fn(a, b) => a + b;
+#include <stdio.h>
+/* comment */ // inline

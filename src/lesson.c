@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <dirent.h>
 #include "lesson.h"
 #include "typecode.h"
 
@@ -225,31 +226,35 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name)
 
     /* кнопки */
     attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
-    mvprintw(row + h - 2, col + 6, "[R] Retry");
+    mvprintw(row + h - 2, col + 4, "[R] Retry");
     attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
 
+    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    mvprintw(row + h - 2, col + 18, "[Esc] Lessons");
+    attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+
     attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-    mvprintw(row + h - 2, col + 28, "[Q] Main menu");
+    mvprintw(row + h - 2, col + 36, "[Q] Main menu");
     attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
     refresh();
 
     int ch;
     while ((ch = getch()) != ERR) {
-        if (ch == 'r' || ch == 'R') return RESULT_REPEAT;
-        if (ch == 'q' || ch == 'Q' || ch == 27 || ch == '\n' || ch == KEY_ENTER)
-            return RESULT_MENU;
+        if (ch == 'r' || ch == 'R')                       return RESULT_REPEAT;
+        if (ch == 27 || ch == '\n' || ch == KEY_ENTER)    return RESULT_LESSONS;
+        if (ch == 'q' || ch == 'Q')                       return RESULT_MAIN_MENU;
     }
-    return RESULT_MENU;
+    return RESULT_LESSONS;
 }
 
-void lesson_run(const char *path)
+ResultAction lesson_run(const char *path)
 {
     Lesson *lesson = lesson_load(path);
-    if (!lesson) return;
+    if (!lesson) return RESULT_LESSONS;
 
     CharState *states = calloc(lesson->len, sizeof(CharState));
-    if (!states) { lesson_free(lesson); return; }
+    if (!states) { lesson_free(lesson); return RESULT_LESSONS; }
 
     ResultAction action;
     do {
@@ -303,4 +308,89 @@ void lesson_run(const char *path)
 
     free(states);
     lesson_free(lesson);
+    return action;
+}
+
+#define MAX_ENTRIES 64
+#define PATH_MAX_LEN 512
+
+void lesson_select_menu(const char *dir)
+{
+    char names[MAX_ENTRIES][LESSON_NAME_MAX];
+    char paths[MAX_ENTRIES][PATH_MAX_LEN];
+    int  count = 0;
+
+    DIR *d = opendir(dir);
+    if (!d) return;
+
+    struct dirent *ent;
+    while ((ent = readdir(d)) && count < MAX_ENTRIES) {
+        char *dot = strrchr(ent->d_name, '.');
+        if (!dot || strcmp(dot, ".txt") != 0) continue;
+
+        snprintf(paths[count], PATH_MAX_LEN, "%s/%s", dir, ent->d_name);
+
+        /* имя: убрать расширение, заменить _ на пробел */
+        strncpy(names[count], ent->d_name, LESSON_NAME_MAX - 1);
+        names[count][LESSON_NAME_MAX - 1] = '\0';
+        char *d2 = strrchr(names[count], '.');
+        if (d2) *d2 = '\0';
+        for (char *p = names[count]; *p; p++)
+            if (*p == '_') *p = ' ';
+
+        count++;
+    }
+    closedir(d);
+
+    if (count == 0) return;
+
+    /* сортировка по имени файла */
+    for (int i = 0; i < count - 1; i++)
+        for (int j = i + 1; j < count; j++)
+            if (strcmp(paths[i], paths[j]) > 0) {
+                char tmp[LESSON_NAME_MAX];
+                strcpy(tmp, names[i]); strcpy(names[i], names[j]); strcpy(names[j], tmp);
+                char tmpp[PATH_MAX_LEN];
+                strcpy(tmpp, paths[i]); strcpy(paths[i], paths[j]); strcpy(paths[j], tmpp);
+            }
+
+    int selected = 0;
+    int ch;
+
+    while (1) {
+        clear();
+
+        attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+        mvhline(0, 0, ACS_HLINE, COLS);
+        mvprintw(1, 3, "Lessons");
+        mvhline(2, 0, ACS_HLINE, COLS);
+        attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+
+        for (int i = 0; i < count; i++) {
+            if (i == selected) {
+                attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
+                mvprintw(4 + i, 3, " %s ", names[i]);
+                attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
+            } else {
+                attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+                mvprintw(4 + i, 3, " %s ", names[i]);
+                attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+            }
+        }
+
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        mvprintw(LINES - 1, 3, "up/dn - move   Enter - start   Esc - back");
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
+        refresh();
+
+        ch = getch();
+        if (ch == 27) break;
+        if (ch == KEY_UP)   selected = (selected - 1 + count) % count;
+        if (ch == KEY_DOWN) selected = (selected + 1) % count;
+        if (ch == '\n' || ch == KEY_ENTER) {
+            ResultAction a = lesson_run(paths[selected]);
+            if (a == RESULT_MAIN_MENU) break;
+        }
+    }
 }

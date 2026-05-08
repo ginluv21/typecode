@@ -22,8 +22,9 @@ typedef struct {
 } Metrics;
 
 typedef enum {
-    RESULT_MENU = 0,
-    RESULT_REPEAT
+    RESULT_LESSONS = 0,
+    RESULT_REPEAT,
+    RESULT_MAIN_MENU
 } ResultAction;
 
 typedef struct {
@@ -37,6 +38,7 @@ void         lesson_free(Lesson *lesson);
 void         lesson_draw(const Lesson *lesson, int cursor_pos,
                          const CharState *states, const Metrics *metrics);
 ResultAction lesson_show_results(const Metrics *metrics, const char *name);
-void         lesson_run(const char *path);
+ResultAction lesson_run(const char *path);
+void         lesson_select_menu(const char *dir);
 
 #endif
