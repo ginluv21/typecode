@@ -7,4 +7,13 @@
 #define COLOR_WHITE_ON_BLACK  4
 #define COLOR_CYAN_ON_BLACK   5
 
+typedef enum {
+    MENU_LESSONS = 0,
+    MENU_LANGUAGES,
+    MENU_PRACTICE,
+    MENU_STATISTICS,
+    MENU_SETTINGS,
+    MENU_EXIT
+} MenuOption;
+
 #endif
