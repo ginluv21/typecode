@@ -21,7 +21,7 @@ int main(void)
     do {
         choice = menu_run();
         if (choice == MENU_LESSONS)
-            lesson_run("lessons/latin/home-row.txt");
+            lesson_select_menu("lessons/latin");
     } while (choice != MENU_EXIT);
 
     ui_cleanup();
