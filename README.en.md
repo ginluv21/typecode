@@ -1,6 +1,6 @@
 # typecode
 
-**English** | [Русский](README.md)
+[Русский](README.md) | **English**
 
 > A terminal-based typing trainer for programmers. Built in pure C with ncurses.
 
