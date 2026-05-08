@@ -8,7 +8,7 @@
 #define MENU_WIDTH      50
 #define MENU_HEIGHT     14  /* top + 5 logo + sep + 6 items + bottom */
 
-/* Google / Rubik colors — one per row, horizontal bands */
+/* Google / Rubik colors - one per row, horizontal bands */
 static const int logo_colors[LOGO_LINES] = {
     COLOR_RED_ON_BLACK,
     COLOR_BLUE_ON_BLACK,
@@ -61,7 +61,7 @@ void draw_main_menu(int selected)
     draw_hline(row, col, ACS_ULCORNER, ACS_URCORNER);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    /* logo rows — centered, each line in its own color */
+    /* logo rows - centered, each line in its own color */
     for (int i = 0; i < LOGO_LINES; i++) {
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
         mvaddch(row + 1 + i, col, ACS_VLINE);

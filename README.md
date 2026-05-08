@@ -23,9 +23,9 @@
 
 ## What is typecode?
 
-typecode is a TUI typing trainer designed specifically for programmers. Unlike generic typing tools, typecode trains you on real code — syntax, patterns, and constructs from the languages you actually use every day.
+typecode is a TUI typing trainer designed specifically for programmers. Unlike generic typing tools, typecode trains you on real code - syntax, patterns, and constructs from the languages you actually use every day.
 
-It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`, `htop` — but for improving your typing speed on code.
+It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`, `htop` - but for improving your typing speed on code.
 
 **What you train:**
 - Blind typing (touch typing without looking at the keyboard)
@@ -50,12 +50,12 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 - Programming Languages mode: C, Python, JavaScript, Bash, Go
 - Load any custom file from the menu and type it
 - Statistics saved between sessions (best WPM, history, accuracy)
-- Hardcore mode — no Backspace allowed
+- Hardcore mode - no Backspace allowed
 - Practice modes: Time Attack (30 / 60 / 120s) and Infinite loop
 - Settings screen with persistent config
 
 ### v2.0+ (planned)
-- Keyboard heatmap — see which keys you struggle with most
+- Keyboard heatmap - see which keys you struggle with most
 - Cyrillic / Russian lessons
 - Vim mode navigation (`hjkl`)
 - Speed Challenge with ranks (S / A / B / C)
@@ -104,9 +104,9 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 └──────────────────────────────────────────────┘
 ```
 
-- **Green** — correct characters
-- **Red** — mistakes
-- **Yellow** — current cursor position
+- **Green** - correct characters
+- **Red** - mistakes
+- **Yellow** - current cursor position
 
 ### Results screen
 
@@ -227,8 +227,8 @@ No C++. No heavy frameworks. No unnecessary dependencies.
 
 - [x] Project structure and GitHub issues
 - [x] Makefile
-- [x] main.c — entry point
-- [x] ui.c — ncurses init and colors
+- [x] main.c - entry point
+- [x] ui.c - ncurses init and colors
 - [x] Main menu with navigation
 - [ ] Typing engine
 - [ ] 5 base lessons
