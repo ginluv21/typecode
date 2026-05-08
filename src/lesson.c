@@ -99,11 +99,11 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
         attroff(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(LINES - 1, COLS - 20, "Esc - back to menu");
+        mvprintw(LINES - 1, COLS - 22, "Esc - finish early");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
     } else {
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(LINES - 1, TEXT_MARGIN, "Esc - back to menu");
+        mvprintw(LINES - 1, TEXT_MARGIN, "Esc - finish early");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
     }
 
@@ -146,6 +146,103 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
     refresh();
 }
 
+ResultAction lesson_show_results(const Metrics *metrics, const char *name)
+{
+    int w = 50;
+    int h = 12;
+    int row = (LINES - h) / 2;
+    int col = (COLS  - w) / 2;
+
+    int mm = metrics->duration_sec / 60;
+    int ss = metrics->duration_sec % 60;
+
+    clear();
+
+    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    mvaddch(row, col, ACS_ULCORNER);
+    mvhline(row, col + 1, ACS_HLINE, w - 2);
+    mvaddch(row, col + w - 1, ACS_URCORNER);
+    attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+
+    for (int i = 1; i < h - 1; i++) {
+        attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+        mvaddch(row + i, col, ACS_VLINE);
+        mvaddch(row + i, col + w - 1, ACS_VLINE);
+        attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    }
+
+    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    mvaddch(row + h - 1, col, ACS_LLCORNER);
+    mvhline(row + h - 1, col + 1, ACS_HLINE, w - 2);
+    mvaddch(row + h - 1, col + w - 1, ACS_LRCORNER);
+    attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+
+    /* заголовок */
+    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
+    mvprintw(row + 1, col + (w - (int)strlen(name)) / 2, "%s", name);
+    attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
+
+    /* разделитель */
+    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    mvaddch(row + 2, col, ACS_LTEE);
+    mvhline(row + 2, col + 1, ACS_HLINE, w - 2);
+    mvaddch(row + 2, col + w - 1, ACS_RTEE);
+    attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+
+    /* метрики */
+    int mc = col + 6;
+    int vc = col + 22;
+
+    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    mvprintw(row + 4, mc, "WPM");
+    mvprintw(row + 5, mc, "Accuracy");
+    mvprintw(row + 6, mc, "Errors");
+    mvprintw(row + 7, mc, "Time");
+    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
+    attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
+    mvprintw(row + 4, vc, "%d", metrics->wpm);
+    attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
+
+    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    mvprintw(row + 5, vc, "%.0f%%", metrics->accuracy);
+    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
+    attron(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+    mvprintw(row + 6, vc, "%d", metrics->errors);
+    attroff(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+
+    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    mvprintw(row + 7, vc, "%d:%02d", mm, ss);
+    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
+    /* разделитель */
+    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    mvaddch(row + h - 3, col, ACS_LTEE);
+    mvhline(row + h - 3, col + 1, ACS_HLINE, w - 2);
+    mvaddch(row + h - 3, col + w - 1, ACS_RTEE);
+    attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+
+    /* кнопки */
+    attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
+    mvprintw(row + h - 2, col + 6, "[R] Retry");
+    attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
+
+    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    mvprintw(row + h - 2, col + 28, "[Q] Main menu");
+    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
+    refresh();
+
+    int ch;
+    while ((ch = getch()) != ERR) {
+        if (ch == 'r' || ch == 'R') return RESULT_REPEAT;
+        if (ch == 'q' || ch == 'Q' || ch == 27 || ch == '\n' || ch == KEY_ENTER)
+            return RESULT_MENU;
+    }
+    return RESULT_MENU;
+}
+
 void lesson_run(const char *path)
 {
     Lesson *lesson = lesson_load(path);
@@ -154,44 +251,55 @@ void lesson_run(const char *path)
     CharState *states = calloc(lesson->len, sizeof(CharState));
     if (!states) { lesson_free(lesson); return; }
 
-    Metrics metrics = {0};
-    int cursor_pos  = 0;
-    lesson_draw(lesson, cursor_pos, states, &metrics);
+    ResultAction action;
+    do {
+        memset(states, 0, lesson->len * sizeof(CharState));
+        Metrics metrics = {0};
+        int cursor_pos  = 0;
+        lesson_draw(lesson, cursor_pos, states, &metrics);
 
-    int ch;
-    while ((ch = getch()) != 27) { /* Esc */
-        if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
-            if (cursor_pos > 0) {
-                cursor_pos--;
-                if (states[cursor_pos] == CHAR_CORRECT) metrics.correct--;
-                else if (states[cursor_pos] == CHAR_WRONG) metrics.errors--;
-                states[cursor_pos] = CHAR_UNTYPED;
-            }
-        } else if (ch == KEY_RESIZE) {
-            /* перерисовать при resize */
-        } else if (ch >= 32 && ch < 127) {
-            /* запустить таймер при первом нажатии */
-            if (!metrics.started) {
-                clock_gettime(CLOCK_MONOTONIC, &metrics.start);
-                metrics.started = 1;
-            }
-            if (cursor_pos < lesson->len) {
-                if (ch == lesson->text[cursor_pos]) {
-                    states[cursor_pos] = CHAR_CORRECT;
-                    metrics.correct++;
-                } else {
-                    states[cursor_pos] = CHAR_WRONG;
-                    metrics.errors++;
+        int ch;
+        while ((ch = getch()) != ERR) {
+            if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
+                if (cursor_pos > 0) {
+                    cursor_pos--;
+                    if (states[cursor_pos] == CHAR_CORRECT) metrics.correct--;
+                    else if (states[cursor_pos] == CHAR_WRONG) metrics.errors--;
+                    states[cursor_pos] = CHAR_UNTYPED;
                 }
-                cursor_pos++;
-            }
-            if (cursor_pos == lesson->len)
+            } else if (ch == 27) { /* Esc — досрочный выход */
                 break;
+            } else if (ch == KEY_RESIZE) {
+                /* перерисовать при resize */
+            } else if (ch >= 32 && ch < 127) {
+                if (!metrics.started) {
+                    clock_gettime(CLOCK_MONOTONIC, &metrics.start);
+                    metrics.started = 1;
+                }
+                if (cursor_pos < lesson->len) {
+                    if (ch == lesson->text[cursor_pos]) {
+                        states[cursor_pos] = CHAR_CORRECT;
+                        metrics.correct++;
+                    } else {
+                        states[cursor_pos] = CHAR_WRONG;
+                        metrics.errors++;
+                    }
+                    cursor_pos++;
+                }
+                if (cursor_pos == lesson->len)
+                    break;
+            }
+
+            metrics_update(&metrics);
+            lesson_draw(lesson, cursor_pos, states, &metrics);
         }
 
-        metrics_update(&metrics);
-        lesson_draw(lesson, cursor_pos, states, &metrics);
-    }
+        if (!metrics.started) break; /* не нажал ни одной клавиши — выйти без результатов */
+
+        metrics.duration_sec = metrics.started ? (int)elapsed_sec(&metrics) : 0;
+        action = lesson_show_results(&metrics, lesson->name);
+
+    } while (action == RESULT_REPEAT);
 
     free(states);
     lesson_free(lesson);
