@@ -16,7 +16,6 @@
 - [Makefile targets](#makefile-targets)
 - [Keyboard shortcuts](#keyboard-shortcuts)
 - [Tech stack](#tech-stack)
-- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 
 ---
@@ -220,25 +219,6 @@ make clean    # Remove build artifacts
 | Dependencies | libncurses only |
 
 No C++. No heavy frameworks. No unnecessary dependencies.
-
----
-
-## Roadmap
-
-- [x] Project structure and GitHub issues
-- [x] Makefile
-- [x] main.c - entry point
-- [x] ui.c - ncurses init and colors
-- [x] Main menu with navigation
-- [x] Typing engine - lesson loading and text display
-- [ ] 5 base lessons
-- [ ] Results screen
-- [ ] v1.0: 20 lessons + programming languages
-- [ ] v1.0: statistics + custom file loading
-- [ ] v1.0: hardcore mode + practice modes
-- [ ] v2.0+: heatmap, cyrillic, vim mode
-
-Full task list: [GitHub Project](https://github.com/users/ginluv21/projects/3)
 
 ---
 
