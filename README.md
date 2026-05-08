@@ -1,72 +1,72 @@
 # typecode
 
-**English** | [Русский](README.ru.md)
+[English](README.ru.md) | **Русский**
 
-> A terminal-based typing trainer for programmers. Built in pure C with ncurses.
-
----
-
-## Navigation
-
-- [What is typecode?](#what-is-typecode)
-- [Features](#features)
-- [Interface](#interface)
-- [Installation](#installation)
-- [Project structure](#project-structure)
-- [Makefile targets](#makefile-targets)
-- [Keyboard shortcuts](#keyboard-shortcuts)
-- [Tech stack](#tech-stack)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
+> Тренажёр слепой печати для программистов прямо в терминале. Написан на чистом C с использованием ncurses.
 
 ---
 
-## What is typecode?
+## Навигация
 
-typecode is a TUI typing trainer designed specifically for programmers. Unlike generic typing tools, typecode trains you on real code - syntax, patterns, and constructs from the languages you actually use every day.
-
-It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`, `htop` - but for improving your typing speed on code.
-
-**What you train:**
-- Blind typing (touch typing without looking at the keyboard)
-- Fast input of programming syntax
-- Muscle memory for language-specific constructs
-- Special characters: `{}`, `[]`, `()`, `<>`, `;`, `->`, `=>`, `::`, `&&`, `||`
+- [Что такое typecode?](#что-такое-typecode)
+- [Возможности](#возможности)
+- [Интерфейс](#интерфейс)
+- [Установка](#установка)
+- [Структура проекта](#структура-проекта)
+- [Цели Makefile](#цели-makefile)
+- [Горячие клавиши](#горячие-клавиши)
+- [Стек технологий](#стек-технологий)
+- [Дорожная карта](#дорожная-карта)
+- [Участие в разработке](#участие-в-разработке)
 
 ---
 
-## Features
+## Что такое typecode?
+
+typecode - это TUI-тренажёр печати, созданный специально для программистов. В отличие от обычных тренажёров, typecode обучает набору настоящего кода - синтаксиса, паттернов и конструкций тех языков, которые ты используешь каждый день.
+
+Ощущается как настоящая Linux-утилита, а не игрушка. Представь `btop`, `lazygit`, `htop` - но для прокачки скорости набора кода.
+
+**Чему ты учишься:**
+- Слепая печать (без взгляда на клавиатуру)
+- Быстрый набор программного синтаксиса
+- Мышечная память на конструкции языков
+- Специальные символы: `{}`, `[]`, `()`, `<>`, `;`, `->`, `=>`, `::`, `&&`, `||`
+
+---
+
+## Возможности
 
 ### MVP
-- TUI main menu with keyboard navigation
-- Typing engine with real-time feedback (green / red / yellow cursor)
-- Live metrics: WPM, accuracy, error count
-- Lessons loaded from plain text files
-- 5 built-in lessons (home row, top row, bottom row, numbers, symbols)
-- Results screen after each session
+- TUI главное меню с навигацией клавишами
+- Движок печати с мгновенной обратной связью (зелёный / красный / жёлтый курсор)
+- Метрики в реальном времени: WPM, точность, количество ошибок
+- Уроки загружаются из обычных текстовых файлов
+- 5 базовых уроков (домашний ряд, верхний, нижний, цифры, символы)
+- Экран результатов после каждой сессии
 
 ### v1.0
-- 20 progressive lessons
-- Programming Languages mode: C, Python, JavaScript, Bash, Go
-- Load any custom file from the menu and type it
-- Statistics saved between sessions (best WPM, history, accuracy)
-- Hardcore mode - no Backspace allowed
-- Practice modes: Time Attack (30 / 60 / 120s) and Infinite loop
-- Settings screen with persistent config
+- 20 уроков с нарастающей сложностью
+- Режим Programming Languages: C, Python, JavaScript, Bash, Go
+- Загрузка любого файла с диска прямо из меню
+- Статистика между сессиями (лучший WPM, история, точность)
+- Hardcore режим - Backspace отключён
+- Режимы практики: Time Attack (30 / 60 / 120 сек) и бесконечный режим
+- Экран настроек с сохранением конфигурации
 
-### v2.0+ (planned)
-- Keyboard heatmap - see which keys you struggle with most
-- Cyrillic / Russian lessons
-- Vim mode navigation (`hjkl`)
-- Speed Challenge with ranks (S / A / B / C)
-- Animated splash screen
+### v2.0+ (в планах)
+- Heatmap клавиатуры - видишь на каких клавишах больше всего ошибок
+- Уроки на кириллице / русском языке
+- Vim mode навигация (`hjkl`)
+- Speed Challenge с рангами (S / A / B / C)
+- Анимированный splash screen при запуске
 - Man page
 
 ---
 
-## Interface
+## Интерфейс
 
-### Main menu
+### Главное меню
 
 ```
 ┌────────────────────────────────────────────────┐
@@ -85,7 +85,7 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 └────────────────────────────────────────────────┘
 ```
 
-### Typing session
+### Сессия печати
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -100,40 +100,40 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
                    ^
 
 ├──────────────────────────────────────────────┤
-│ WPM: 74   Accuracy: 97%   Errors: 2   0:42  │
+│ WPM: 74   Точность: 97%   Ошибки: 2   0:42  │
 └──────────────────────────────────────────────┘
 ```
 
-- **Green** - correct characters
-- **Red** - mistakes
-- **Yellow** - current cursor position
+- **Зелёный** - правильно введённые символы
+- **Красный** - ошибки
+- **Жёлтый** - текущая позиция курсора
 
-### Results screen
+### Экран результатов
 
 ```
 ┌──────────────────────────────────────────────┐
-│                Session Complete              │
+│               Сессия завершена               │
 ├──────────────────────────────────────────────┤
-│  WPM        74                               │
-│  Accuracy   97%                              │
-│  Errors     2                                │
-│  Time       0:42                             │
+│  WPM          74                             │
+│  Точность     97%                            │
+│  Ошибки       2                              │
+│  Время        0:42                           │
 ├──────────────────────────────────────────────┤
-│  [R] Retry    [Q] Main menu                  │
+│  [R] Повторить    [Q] Главное меню           │
 └──────────────────────────────────────────────┘
 ```
 
 ---
 
-## Installation
+## Установка
 
-### Requirements
+### Требования
 
 - Linux
 - GCC
 - ncurses (`libncurses-dev`)
 
-### Build from source
+### Сборка из исходников
 
 ```bash
 git clone https://github.com/ginluv21/typecode.git
@@ -142,7 +142,7 @@ make
 ./typecode
 ```
 
-### Install ncurses (if missing)
+### Установка ncurses (если не установлен)
 
 ```bash
 # Ubuntu / Debian
@@ -157,98 +157,98 @@ sudo dnf install ncurses-devel
 
 ---
 
-## Project structure
+## Структура проекта
 
 ```
 typecode/
 ├── src/
-│   ├── main.c          # Entry point
-│   ├── ui.c / ui.h     # ncurses init, colors
-│   ├── menu.c / menu.h # Main menu drawing and navigation
-│   ├── typing.c / .h   # Typing engine, input loop
-│   ├── stats.c / .h    # Statistics, session saving
-│   └── lessons.c / .h  # Lesson loader, file parser
-├── include/            # Shared headers
+│   ├── main.c          # Точка входа
+│   ├── ui.c / ui.h     # Инициализация ncurses, цвета
+│   ├── menu.c / menu.h # Отрисовка и навигация меню
+│   ├── typing.c / .h   # Движок печати, цикл ввода
+│   ├── stats.c / .h    # Статистика, сохранение сессий
+│   └── lessons.c / .h  # Загрузчик уроков, парсер файлов
+├── include/            # Общие заголовочные файлы
 ├── lessons/
-│   ├── latin/          # Basic typing lessons
-│   ├── c/              # C code snippets
-│   ├── python/         # Python snippets
-│   ├── javascript/     # JS snippets
-│   ├── bash/           # Bash snippets
-│   └── go/             # Go snippets
-├── data/               # Runtime data (stats, config)
-├── build/              # Compiled objects (gitignored)
+│   ├── latin/          # Базовые уроки печати
+│   ├── c/              # Сниппеты C
+│   ├── python/         # Сниппеты Python
+│   ├── javascript/     # Сниппеты JavaScript
+│   ├── bash/           # Сниппеты Bash
+│   └── go/             # Сниппеты Go
+├── data/               # Данные (статистика, конфиг)
+├── build/              # Скомпилированные объекты (в .gitignore)
 ├── Makefile
 └── README.md
 ```
 
 ---
 
-## Makefile targets
+## Цели Makefile
 
 ```bash
-make          # Build the project
-make run      # Build and run
-make debug    # Build with -g -fsanitize=address
-make clean    # Remove build artifacts
+make          # Собрать проект
+make run      # Собрать и запустить
+make debug    # Сборка с -g -fsanitize=address
+make clean    # Удалить артефакты сборки
 ```
 
 ---
 
-## Keyboard shortcuts
+## Горячие клавиши
 
-| Key | Action |
-|-----|--------|
-| `up` / `dn` | Navigate menu |
-| `1`–`6` | Direct menu selection |
-| `Enter` | Confirm |
-| `Backspace` | Fix last character |
-| `Esc` | Exit current session |
-| `R` | Retry lesson |
-| `Q` | Back to menu |
+| Клавиша | Действие |
+|---------|----------|
+| `up` / `dn` | Навигация по меню |
+| `1`–`6` | Прямой выбор пункта |
+| `Enter` | Подтвердить |
+| `Backspace` | Исправить последний символ |
+| `Esc` | Выйти из текущей сессии |
+| `R` | Повторить урок |
+| `Q` | Вернуться в меню |
 
 ---
 
-## Tech stack
+## Стек технологий
 
 | | |
 |---|---|
-| Language | C (C11) |
+| Язык | C (C11) |
 | TUI | ncurses |
-| Build | GCC + Makefile |
-| Platform | Linux |
-| Dependencies | libncurses only |
+| Сборка | GCC + Makefile |
+| Платформа | Linux |
+| Зависимости | только libncurses |
 
-No C++. No heavy frameworks. No unnecessary dependencies.
+Без C++. Без тяжёлых фреймворков. Без лишних зависимостей.
 
 ---
 
-## Roadmap
+## Дорожная карта
 
-- [x] Project structure and GitHub issues
+- [x] Структура проекта и GitHub issues
 - [x] Makefile
-- [x] main.c - entry point
-- [x] ui.c - ncurses init and colors
-- [x] Main menu with navigation
-- [ ] Typing engine
-- [ ] 5 base lessons
-- [ ] Results screen
-- [ ] v1.0: 20 lessons + programming languages
-- [ ] v1.0: statistics + custom file loading
-- [ ] v1.0: hardcore mode + practice modes
-- [ ] v2.0+: heatmap, cyrillic, vim mode
+- [x] main.c - точка входа
+- [x] ui.c - инициализация ncurses и цвета
+- [x] Главное меню с навигацией
+- [x] Typing engine - загрузка и отрисовка текста
+- [ ] 5 базовых уроков
+- [ ] Экран результатов
+- [ ] v1.0: 20 уроков + языки программирования
+- [ ] v1.0: статистика + загрузка кастомного файла
+- [ ] v1.0: hardcore режим + режимы практики
+- [ ] v2.0+: heatmap, кириллица, vim mode
 
-Full task list: [GitHub Project](https://github.com/users/ginluv21/projects/3)
+Полный список задач: [GitHub Project](https://github.com/users/ginluv21/projects/3)
 
 ---
 
-## Contributing
+## Участие в разработке
 
-This project is open source and built by students learning C.
+Проект с открытым исходным кодом, создан студентами, изучающими C.
 
-1. Fork the repo
-2. Create a branch: `git checkout -b feature/your-feature`
-3. Commit your changes
-4. Open a Pull Request
+1. Сделай форк репозитория
+2. Создай ветку: `git checkout -b feature/название-фичи`
+3. Закоммить изменения
+4. Открой Pull Request
 
-Check the [Issues](https://github.com/ginluv21/typecode/issues) for tasks labeled `MVP` or `v1.0`.
+Смотри [Issues](https://github.com/ginluv21/typecode/issues) с метками `MVP` или `v1.0`.
