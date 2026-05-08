@@ -4,7 +4,7 @@
 #include "ui.h"
 #include "typecode.h"
 
-void ui_init(void)
+void ui_init(void) // инициализирует ncurses, включает цвета, регистрирует 6 цветовых пар
 {
     initscr();
     cbreak();
@@ -28,7 +28,7 @@ void ui_init(void)
     init_pair(COLOR_BLUE_ON_BLACK,   COLOR_BLUE,   -1);
 }
 
-void ui_cleanup(void)
+void ui_cleanup(void) // завершает ncurses, возвращает терминал в нормальный режим
 {
     endwin();
 }

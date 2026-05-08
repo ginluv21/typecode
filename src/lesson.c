@@ -10,7 +10,7 @@
 
 #define TEXT_MARGIN 3
 
-Lesson *lesson_load(const char *path)
+Lesson *lesson_load(const char *path) // читает .txt файл, выделяет Lesson с текстом, имя из имени файла без расширения
 {
     FILE *f = fopen(path, "r");
     if (!f) return NULL;
@@ -45,14 +45,14 @@ Lesson *lesson_load(const char *path)
     return lesson;
 }
 
-void lesson_free(Lesson *lesson)
+void lesson_free(Lesson *lesson) // освобождает text и сам Lesson
 {
     if (!lesson) return;
     free(lesson->text);
     free(lesson);
 }
 
-static double elapsed_sec(const Metrics *m)
+static double elapsed_sec(const Metrics *m) // секунды с момента старта урока
 {
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
@@ -60,7 +60,7 @@ static double elapsed_sec(const Metrics *m)
          + (now.tv_nsec - m->start.tv_nsec) / 1e9;
 }
 
-static void metrics_update(Metrics *m)
+static void metrics_update(Metrics *m) // пересчитывает wpm и accuracy по текущему elapsed
 {
     if (!m->started) return;
     double mins = elapsed_sec(m) / 60.0;
@@ -70,7 +70,7 @@ static void metrics_update(Metrics *m)
 }
 
 void lesson_draw(const Lesson *lesson, int cursor_pos,
-                 const CharState *states, const Metrics *metrics)
+                 const CharState *states, const Metrics *metrics) // рисует заголовок, текст с цветами по состояниям, строку метрик внизу
 {
     int max_col  = COLS  - TEXT_MARGIN;
     int max_row  = LINES - 3;
@@ -171,7 +171,7 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
     refresh();
 }
 
-ResultAction lesson_show_results(const Metrics *metrics, const char *name)
+ResultAction lesson_show_results(const Metrics *metrics, const char *name) // показывает итоговую рамку со статистикой, ждёт R/Esc/Q
 {
     int w = 50;
     int h = 12;
@@ -272,7 +272,7 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name)
     return RESULT_LESSONS;
 }
 
-ResultAction lesson_run(const char *path)
+ResultAction lesson_run(const char *path) // основной цикл урока: ввод символов, подсчёт метрик, повтор при R
 {
     Lesson *lesson = lesson_load(path);
     if (!lesson) return RESULT_LESSONS;
@@ -355,7 +355,7 @@ ResultAction lesson_run(const char *path)
 #define MAX_ENTRIES 64
 #define PATH_MAX_LEN 512
 
-void lesson_select_menu(const char *dir)
+void lesson_select_menu(const char *dir) // сканирует dir на .txt файлы, сортирует, показывает список для выбора
 {
     char names[MAX_ENTRIES][LESSON_NAME_MAX];
     char paths[MAX_ENTRIES][PATH_MAX_LEN];
