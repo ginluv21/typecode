@@ -69,16 +69,20 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 ### Main menu
 
 ```
-┌──────────────────────────────┐
-│           typecode           │
-├──────────────────────────────┤
-│  1. Lessons                  │
-│  2. Programming Languages    │
-│  3. Practice                 │
-│  4. Statistics               │
-│  5. Settings                 │
-│  6. Exit                     │
-└──────────────────────────────┘
+┌────────────────────────────────────────────────┐
+│     _                              _           │
+│    | |_ _  _ _ __  ___  __ ___  __| | ___      │
+│    |  _| || | '_ \/ -_)/ _/ _ \/ _` |/ -_)     │
+│     \__|\_, | .__/\___|\__\___/\__,_|\___|     │
+│         |__/|_|                                │
+├────────────────────────────────────────────────┤
+│ 1. Lessons                                     │
+│ 2. Programming Languages                       │
+│ 3. Practice                                    │
+│ 4. Statistics                                  │
+│ 5. Settings                                    │
+│ 6. Exit                                        │
+└────────────────────────────────────────────────┘
 ```
 
 ### Typing session

@@ -1,10 +1,29 @@
 #include <ncurses.h>
+#include <string.h>
 #include "menu.h"
 #include "typecode.h"
 
-#define MENU_ITEMS  6
-#define MENU_WIDTH  32
-#define MENU_HEIGHT 10
+#define LOGO_LINES      5
+#define MENU_ITEMS      6
+#define MENU_WIDTH      50
+#define MENU_HEIGHT     14  /* top + 5 logo + sep + 6 items + bottom */
+
+/* Google / Rubik colors — one per row, horizontal bands */
+static const int logo_colors[LOGO_LINES] = {
+    COLOR_RED_ON_BLACK,
+    COLOR_BLUE_ON_BLACK,
+    COLOR_YELLOW_ON_BLACK,
+    COLOR_GREEN_ON_BLACK,
+    COLOR_CYAN_ON_BLACK,
+};
+
+static const char *logo[LOGO_LINES] = {
+    " _                              _",
+    "| |_ _  _ _ __  ___  __ ___  __| | ___",
+    "|  _| || | '_ \\/ -_)/ _/ _ \\/ _` |/ -_)",
+    " \\__|\\_, | .__/\\___|\\__\\___/\\__,_|\\___|",
+    "     |__/|_|",
+};
 
 static const char *items[MENU_ITEMS] = {
     "Lessons",
@@ -28,52 +47,68 @@ void draw_main_menu(int selected)
     int row = (LINES - MENU_HEIGHT) / 2;
     int col = (COLS  - MENU_WIDTH)  / 2;
 
+    int max_logo_w = 0;
+    for (int i = 0; i < LOGO_LINES; i++) {
+        int len = (int)strlen(logo[i]);
+        if (len > max_logo_w) max_logo_w = len;
+    }
+    int logo_col = col + 1 + (MENU_WIDTH - 2 - max_logo_w) / 2;
+
     clear();
 
     /* top border */
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     draw_hline(row, col, ACS_ULCORNER, ACS_URCORNER);
-
-    /* title row */
-    mvaddch(row + 1, col, ACS_VLINE);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    attron(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
-    mvprintw(row + 1, col + (MENU_WIDTH - 8) / 2, "typecode");
-    attroff(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
+    /* logo rows — centered, each line in its own color */
+    for (int i = 0; i < LOGO_LINES; i++) {
+        attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+        mvaddch(row + 1 + i, col, ACS_VLINE);
+        mvaddch(row + 1 + i, col + MENU_WIDTH - 1, ACS_VLINE);
+        attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-    mvaddch(row + 1, col + MENU_WIDTH - 1, ACS_VLINE);
+        attron(COLOR_PAIR(logo_colors[i]) | A_BOLD);
+        mvprintw(row + 1 + i, logo_col, "%s", logo[i]);
+        attroff(COLOR_PAIR(logo_colors[i]) | A_BOLD);
+
+        /* restore vlines overwritten by padding */
+        attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+        mvaddch(row + 1 + i, col, ACS_VLINE);
+        mvaddch(row + 1 + i, col + MENU_WIDTH - 1, ACS_VLINE);
+        attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    }
 
     /* separator */
-    draw_hline(row + 2, col, ACS_LTEE, ACS_RTEE);
+    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    draw_hline(row + 6, col, ACS_LTEE, ACS_RTEE);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
     /* menu items */
     for (int i = 0; i < MENU_ITEMS; i++) {
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-        mvaddch(row + 3 + i, col, ACS_VLINE);
-        mvaddch(row + 3 + i, col + MENU_WIDTH - 1, ACS_VLINE);
+        mvaddch(row + 7 + i, col, ACS_VLINE);
+        mvaddch(row + 7 + i, col + MENU_WIDTH - 1, ACS_VLINE);
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
         if (i == selected) {
             attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
-            mvprintw(row + 3 + i, col + 1, " %d. %-*s", i + 1, MENU_WIDTH - 6, items[i]);
+            mvprintw(row + 7 + i, col + 1, " %d. %s", i + 1, items[i]);
             attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
         } else {
             attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-            mvprintw(row + 3 + i, col + 1, " %d. %-*s", i + 1, MENU_WIDTH - 6, items[i]);
+            mvprintw(row + 7 + i, col + 1, " %d. %s", i + 1, items[i]);
             attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
         }
     }
 
     /* bottom border */
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-    draw_hline(row + 9, col, ACS_LLCORNER, ACS_LRCORNER);
+    draw_hline(row + MENU_HEIGHT - 1, col, ACS_LLCORNER, ACS_LRCORNER);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
     /* hint */
-    mvprintw(row + MENU_HEIGHT + 1, col + 3, "up/dn move   Enter select");
+    mvprintw(row + MENU_HEIGHT + 1, col + 3, "up/dn move   Enter select   q quit");
 
     refresh();
 }
