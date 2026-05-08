@@ -49,28 +49,25 @@ void lesson_free(Lesson *lesson)
     free(lesson);
 }
 
-void lesson_draw(const Lesson *lesson, int cursor_pos)
+void lesson_draw(const Lesson *lesson, int cursor_pos, const CharState *states)
 {
     int max_col  = COLS  - TEXT_MARGIN;
-    int max_row  = LINES - 3; /* reserve bottom hint row */
+    int max_row  = LINES - 3;
     int text_row = 3;
     int text_col = TEXT_MARGIN;
 
     clear();
 
-    /* header */
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     mvhline(0, 0, ACS_HLINE, COLS);
     mvprintw(1, TEXT_MARGIN, "%s", lesson->name);
     mvhline(2, 0, ACS_HLINE, COLS);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    /* hint */
     attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
     mvprintw(LINES - 1, TEXT_MARGIN, "Esc - back to menu");
     attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
-    /* text */
     for (int i = 0; i < lesson->len && text_row < max_row; i++) {
         char ch = lesson->text[i];
 
@@ -80,8 +77,6 @@ void lesson_draw(const Lesson *lesson, int cursor_pos)
             continue;
         }
 
-        /* wrap long lines at word boundary would be ideal;
-           for now wrap at margin */
         if (text_col >= max_col) {
             text_row++;
             text_col = TEXT_MARGIN;
@@ -92,6 +87,14 @@ void lesson_draw(const Lesson *lesson, int cursor_pos)
             attron(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD | A_REVERSE);
             mvaddch(text_row, text_col, (unsigned char)ch);
             attroff(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD | A_REVERSE);
+        } else if (states && states[i] == CHAR_CORRECT) {
+            attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK));
+            mvaddch(text_row, text_col, (unsigned char)ch);
+            attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK));
+        } else if (states && states[i] == CHAR_WRONG) {
+            attron(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+            mvaddch(text_row, text_col, (unsigned char)ch);
+            attroff(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
         } else {
             attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
             mvaddch(text_row, text_col, (unsigned char)ch);
@@ -109,11 +112,34 @@ void lesson_run(const char *path)
     Lesson *lesson = lesson_load(path);
     if (!lesson) return;
 
-    lesson_draw(lesson, 0);
+    CharState *states = calloc(lesson->len, sizeof(CharState));
+    if (!states) { lesson_free(lesson); return; }
+
+    int cursor_pos = 0;
+    lesson_draw(lesson, cursor_pos, states);
 
     int ch;
-    while ((ch = getch()) != 27) /* Esc */
-        lesson_draw(lesson, 0);
+    while ((ch = getch()) != 27) { /* Esc */
+        if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
+            if (cursor_pos > 0) {
+                cursor_pos--;
+                states[cursor_pos] = CHAR_UNTYPED;
+            }
+        } else if (ch == KEY_RESIZE) {
+            /* перерисовать при resize */
+        } else if (ch >= 32 && ch < 127) {
+            if (cursor_pos < lesson->len) {
+                states[cursor_pos] = (ch == lesson->text[cursor_pos])
+                                     ? CHAR_CORRECT : CHAR_WRONG;
+                cursor_pos++;
+            }
+            if (cursor_pos == lesson->len)
+                break;
+        }
 
+        lesson_draw(lesson, cursor_pos, states);
+    }
+
+    free(states);
     lesson_free(lesson);
 }
