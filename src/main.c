@@ -2,6 +2,7 @@
 #include "typecode.h"
 #include "ui.h"
 #include "menu.h"
+#include "lesson.h"
 
 static volatile sig_atomic_t g_resized = 0;
 
@@ -15,8 +16,14 @@ int main(void)
 {
     signal(SIGWINCH, handle_sigwinch);
     ui_init();
-    MenuOption choice = menu_run();
-    (void)choice; /* будет использоваться при добавлении экранов */
+
+    MenuOption choice;
+    do {
+        choice = menu_run();
+        if (choice == MENU_LESSONS)
+            lesson_run("lessons/latin/home-row.txt");
+    } while (choice != MENU_EXIT);
+
     ui_cleanup();
     return 0;
 }
