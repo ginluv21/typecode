@@ -32,7 +32,7 @@ Lesson *lesson_load(const char *path) // читает .txt файл, выдел�
     lesson->len = (int)n;
     fclose(f);
 
-    /* name from filename, without extension */
+    // имя из имени файла без расширения
     const char *slash = strrchr(path, '/');
     const char *base  = slash ? slash + 1 : path;
     strncpy(lesson->name, base, LESSON_NAME_MAX - 1);
@@ -85,7 +85,7 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
     mvhline(2, 0, ACS_HLINE, COLS);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    /* строка метрик внизу */
+    // строка метрик внизу
     if (metrics && metrics->started) {
         attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
         mvprintw(LINES - 1, TEXT_MARGIN, "WPM: %d", metrics->wpm);
@@ -118,7 +118,7 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
         }
 
         if (ch == '\t') {
-            /* таб = до следующей кратной 4 позиции */
+            // таб-стоп: до следующей позиции кратной 4
             int tab_stop = TEXT_MARGIN + ((text_col - TEXT_MARGIN + 4) / 4) * 4;
             if (i == cursor_pos) {
                 attron(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD | A_REVERSE);
@@ -202,19 +202,19 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
     mvaddch(row + h - 1, col + w - 1, ACS_LRCORNER);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    /* заголовок */
+    // заголовок
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
     mvprintw(row + 1, col + (w - (int)strlen(name)) / 2, "%s", name);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
 
-    /* разделитель */
+    // разделитель
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     mvaddch(row + 2, col, ACS_LTEE);
     mvhline(row + 2, col + 1, ACS_HLINE, w - 2);
     mvaddch(row + 2, col + w - 1, ACS_RTEE);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    /* метрики */
+    // метрики
     int mc = col + 6;
     int vc = col + 22;
 
@@ -241,14 +241,14 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
     mvprintw(row + 7, vc, "%d:%02d", mm, ss);
     attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
-    /* разделитель */
+    // разделитель
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     mvaddch(row + h - 3, col, ACS_LTEE);
     mvhline(row + h - 3, col + 1, ACS_HLINE, w - 2);
     mvaddch(row + h - 3, col + w - 1, ACS_RTEE);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    /* кнопки */
+    // кнопки действий
     attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
     mvprintw(row + h - 2, col + 4, "[R] Retry");
     attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
@@ -286,7 +286,7 @@ ResultAction lesson_run(const char *path) // основной цикл урок�
         Metrics metrics = {0};
         int cursor_pos  = 0;
 
-        /* пропустить ведущие \n если есть */
+        // пропустить ведущие переносы строк
         while (cursor_pos < lesson->len && lesson->text[cursor_pos] == '\n') {
             states[cursor_pos] = CHAR_CORRECT;
             cursor_pos++;
@@ -297,7 +297,7 @@ ResultAction lesson_run(const char *path) // основной цикл урок�
         int ch;
         while ((ch = getch()) != ERR) {
             if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
-                /* пропустить \n при откате */
+                // пропустить переносы при откате
                 while (cursor_pos > 0 && lesson->text[cursor_pos - 1] == '\n') {
                     cursor_pos--;
                     states[cursor_pos] = CHAR_UNTYPED;
@@ -308,10 +308,10 @@ ResultAction lesson_run(const char *path) // основной цикл урок�
                     else if (states[cursor_pos] == CHAR_WRONG) metrics.errors--;
                     states[cursor_pos] = CHAR_UNTYPED;
                 }
-            } else if (ch == 27) { /* Esc - досрочный выход */
+            } else if (ch == 27) { // Esc - досрочный выход
                 break;
             } else if (ch == KEY_RESIZE) {
-                /* перерисовать при resize */
+                // перерисовать при изменении размера терминала
             } else if (ch == '\t' || (ch >= 32 && ch < 127)) {
                 if (!metrics.started) {
                     clock_gettime(CLOCK_MONOTONIC, &metrics.start);
@@ -327,7 +327,7 @@ ResultAction lesson_run(const char *path) // основной цикл урок�
                     }
                     cursor_pos++;
                 }
-                /* авто-пропуск \n после символа */
+                // авто-пропуск переносов строк после символа
                 while (cursor_pos < lesson->len && lesson->text[cursor_pos] == '\n') {
                     states[cursor_pos] = CHAR_CORRECT;
                     cursor_pos++;
@@ -340,7 +340,7 @@ ResultAction lesson_run(const char *path) // основной цикл урок�
             lesson_draw(lesson, cursor_pos, states, &metrics);
         }
 
-        if (!metrics.started) break; /* не нажал ни одной клавиши — выйти без результатов */
+        if (!metrics.started) break; // ни одной клавиши не нажато - выйти без результатов
 
         metrics.duration_sec = metrics.started ? (int)elapsed_sec(&metrics) : 0;
         action = lesson_show_results(&metrics, lesson->name);
@@ -371,7 +371,7 @@ void lesson_select_menu(const char *dir) // сканирует dir на .txt ф�
 
         snprintf(paths[count], PATH_MAX_LEN, "%s/%s", dir, ent->d_name);
 
-        /* имя: убрать расширение, заменить _ на пробел */
+        // убрать расширение, заменить _ на пробел
         strncpy(names[count], ent->d_name, LESSON_NAME_MAX - 1);
         names[count][LESSON_NAME_MAX - 1] = '\0';
         char *d2 = strrchr(names[count], '.');
@@ -385,7 +385,7 @@ void lesson_select_menu(const char *dir) // сканирует dir на .txt ф�
 
     if (count == 0) return;
 
-    /* сортировка по имени файла */
+    // сортировка по имени файла
     for (int i = 0; i < count - 1; i++)
         for (int j = i + 1; j < count; j++)
             if (strcmp(paths[i], paths[j]) > 0) {

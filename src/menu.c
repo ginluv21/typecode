@@ -6,9 +6,9 @@
 #define LOGO_LINES      5
 #define MENU_ITEMS      6
 #define MENU_WIDTH      50
-#define MENU_HEIGHT     14  /* top + 5 logo + sep + 6 items + bottom */
+#define MENU_HEIGHT     14  // top + 5 logo + sep + 6 items + bottom
 
-/* Google / Rubik colors — one per row, horizontal bands */
+// цвета Google/Rubik - по одному на каждую строку лого
 static const int logo_colors[LOGO_LINES] = {
     COLOR_RED_ON_BLACK,
     COLOR_BLUE_ON_BLACK,
@@ -56,12 +56,12 @@ void draw_main_menu(int selected) // рисует рамку с лого и пу
 
     clear();
 
-    /* top border */
+    // верхняя граница рамки
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     draw_hline(row, col, ACS_ULCORNER, ACS_URCORNER);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    /* logo rows — centered, each line in its own color */
+    // строки лого - по центру, каждая в своём цвете
     for (int i = 0; i < LOGO_LINES; i++) {
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
         mvaddch(row + 1 + i, col, ACS_VLINE);
@@ -72,19 +72,19 @@ void draw_main_menu(int selected) // рисует рамку с лого и пу
         mvprintw(row + 1 + i, logo_col, "%s", logo[i]);
         attroff(COLOR_PAIR(logo_colors[i]) | A_BOLD);
 
-        /* restore vlines overwritten by padding */
+        // восстановить линии рамки, перекрытые лого
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
         mvaddch(row + 1 + i, col, ACS_VLINE);
         mvaddch(row + 1 + i, col + MENU_WIDTH - 1, ACS_VLINE);
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     }
 
-    /* separator */
+    // разделитель
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     draw_hline(row + 6, col, ACS_LTEE, ACS_RTEE);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    /* menu items */
+    // пункты меню
     for (int i = 0; i < MENU_ITEMS; i++) {
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
         mvaddch(row + 7 + i, col, ACS_VLINE);
@@ -102,12 +102,12 @@ void draw_main_menu(int selected) // рисует рамку с лого и пу
         }
     }
 
-    /* bottom border */
+    // нижняя граница рамки
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     draw_hline(row + MENU_HEIGHT - 1, col, ACS_LLCORNER, ACS_LRCORNER);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    /* hint */
+    // подсказка по клавишам
     mvprintw(row + MENU_HEIGHT + 1, col + 3, "up/dn move   Enter select   q quit");
 
     refresh();
