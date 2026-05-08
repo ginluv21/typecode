@@ -58,11 +58,11 @@ void draw_main_menu(int selected)
 
         if (i == selected) {
             attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
-            mvprintw(row + 3 + i, col + 1, " %-*s", MENU_WIDTH - 3, items[i]);
+            mvprintw(row + 3 + i, col + 1, " %d. %-*s", i + 1, MENU_WIDTH - 6, items[i]);
             attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
         } else {
             attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-            mvprintw(row + 3 + i, col + 1, " %-*s", MENU_WIDTH - 3, items[i]);
+            mvprintw(row + 3 + i, col + 1, " %d. %-*s", i + 1, MENU_WIDTH - 6, items[i]);
             attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
         }
     }
@@ -94,10 +94,15 @@ MenuOption menu_run(void)
                 break;
             case '\n':
             case KEY_ENTER:
-                return (MenuOption)selected;
+                if (selected == MENU_EXIT)
+                    return MENU_EXIT;
+                break;
             case '1': case '2': case '3':
-            case '4': case '5': case '6':
-                return (MenuOption)(ch - '1');
+            case '4': case '5':
+                selected = ch - '1';
+                break;
+            case '6':
+                return MENU_EXIT;
             case KEY_RESIZE:
                 break;
         }
