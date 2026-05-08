@@ -1,4 +1,5 @@
 #include <signal.h>
+#include "typecode.h"
 #include "ui.h"
 #include "menu.h"
 
@@ -14,7 +15,8 @@ int main(void)
 {
     signal(SIGWINCH, handle_sigwinch);
     ui_init();
-    menu_run();
+    MenuOption choice = menu_run();
+    (void)choice; /* будет использоваться при добавлении экранов */
     ui_cleanup();
     return 0;
 }
