@@ -73,7 +73,7 @@ void draw_main_menu(int selected)
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
     /* hint */
-    mvprintw(row + MENU_HEIGHT + 1, col + 3, "up/dn move   Enter select   q quit");
+    mvprintw(row + MENU_HEIGHT + 1, col + 3, "up/dn move   Enter select");
 
     refresh();
 }
