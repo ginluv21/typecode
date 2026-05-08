@@ -129,15 +129,10 @@ MenuOption menu_run(void)
                 break;
             case '\n':
             case KEY_ENTER:
-                if (selected == MENU_EXIT)
-                    return MENU_EXIT;
-                break;
+                return (MenuOption)selected;
             case '1': case '2': case '3':
-            case '4': case '5':
-                selected = ch - '1';
-                break;
-            case '6':
-                return MENU_EXIT;
+            case '4': case '5': case '6':
+                return (MenuOption)(ch - '1');
             case KEY_RESIZE:
                 break;
         }
