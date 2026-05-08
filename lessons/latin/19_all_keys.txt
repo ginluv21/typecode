@@ -1,0 +1,4 @@
+fix the bug in queue[5] += 0x1F;
+wrap (x * y) >> 2 or use z % 3;
+log("error: %s\n", strerror(err));
+p->next = malloc(sizeof(*p));

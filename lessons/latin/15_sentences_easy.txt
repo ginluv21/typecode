@@ -1,0 +1,4 @@
+the program reads input from the user
+a function returns a value or nothing
+variables store data in memory
+loops repeat code until a condition fails
