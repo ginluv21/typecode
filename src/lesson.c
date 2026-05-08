@@ -272,7 +272,7 @@ ResultAction lesson_run(const char *path)
                     else if (states[cursor_pos] == CHAR_WRONG) metrics.errors--;
                     states[cursor_pos] = CHAR_UNTYPED;
                 }
-            } else if (ch == 27) { /* Esc — досрочный выход */
+            } else if (ch == 27) { /* Esc - досрочный выход */
                 break;
             } else if (ch == KEY_RESIZE) {
                 /* перерисовать при resize */
@@ -299,7 +299,7 @@ ResultAction lesson_run(const char *path)
             lesson_draw(lesson, cursor_pos, states, &metrics);
         }
 
-        if (!metrics.started) break; /* не нажал ни одной клавиши — выйти без результатов */
+        if (!metrics.started) break; /* не нажал ни одной клавиши - выйти без результатов */
 
         metrics.duration_sec = metrics.started ? (int)elapsed_sec(&metrics) : 0;
         action = lesson_show_results(&metrics, lesson->name);
