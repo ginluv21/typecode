@@ -1,0 +1,4 @@
+camelCase PascalCase snake_case
+getUserName setFileName readBuffer
+MAX_SIZE MIN_VALUE DEFAULT_TIMEOUT
+isValid hasError canRetry

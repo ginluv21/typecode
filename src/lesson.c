@@ -10,7 +10,7 @@
 
 #define TEXT_MARGIN 3
 
-Lesson *lesson_load(const char *path)
+Lesson *lesson_load(const char *path) // читает .txt файл, выделяет Lesson с текстом, имя из имени файла без расширения
 {
     FILE *f = fopen(path, "r");
     if (!f) return NULL;
@@ -45,14 +45,14 @@ Lesson *lesson_load(const char *path)
     return lesson;
 }
 
-void lesson_free(Lesson *lesson)
+void lesson_free(Lesson *lesson) // освобождает text и сам Lesson
 {
     if (!lesson) return;
     free(lesson->text);
     free(lesson);
 }
 
-static double elapsed_sec(const Metrics *m)
+static double elapsed_sec(const Metrics *m) // секунды с момента старта урока
 {
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
@@ -60,7 +60,7 @@ static double elapsed_sec(const Metrics *m)
          + (now.tv_nsec - m->start.tv_nsec) / 1e9;
 }
 
-static void metrics_update(Metrics *m)
+static void metrics_update(Metrics *m) // пересчитывает wpm и accuracy по текущему elapsed
 {
     if (!m->started) return;
     double mins = elapsed_sec(m) / 60.0;
@@ -70,7 +70,7 @@ static void metrics_update(Metrics *m)
 }
 
 void lesson_draw(const Lesson *lesson, int cursor_pos,
-                 const CharState *states, const Metrics *metrics)
+                 const CharState *states, const Metrics *metrics) // рисует заголовок, текст с цветами по состояниям, строку метрик внизу
 {
     int max_col  = COLS  - TEXT_MARGIN;
     int max_row  = LINES - 3;
@@ -117,6 +117,30 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
             continue;
         }
 
+        if (ch == '\t') {
+            /* таб = до следующей кратной 4 позиции */
+            int tab_stop = TEXT_MARGIN + ((text_col - TEXT_MARGIN + 4) / 4) * 4;
+            if (i == cursor_pos) {
+                attron(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD | A_REVERSE);
+                mvaddch(text_row, text_col, '>');
+                attroff(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD | A_REVERSE);
+            } else if (states && states[i] == CHAR_CORRECT) {
+                attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK));
+                for (int t = text_col; t < tab_stop; t++) mvaddch(text_row, t, ' ');
+                attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK));
+            } else if (states && states[i] == CHAR_WRONG) {
+                attron(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+                mvaddch(text_row, text_col, '>');
+                attroff(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+            } else {
+                attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+                mvaddch(text_row, text_col, '>');
+                attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+            }
+            text_col = tab_stop;
+            continue;
+        }
+
         if (text_col >= max_col) {
             text_row++;
             text_col = TEXT_MARGIN;
@@ -147,7 +171,7 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
     refresh();
 }
 
-ResultAction lesson_show_results(const Metrics *metrics, const char *name)
+ResultAction lesson_show_results(const Metrics *metrics, const char *name) // показывает итоговую рамку со статистикой, ждёт R/Esc/Q
 {
     int w = 50;
     int h = 12;
@@ -248,7 +272,7 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name)
     return RESULT_LESSONS;
 }
 
-ResultAction lesson_run(const char *path)
+ResultAction lesson_run(const char *path) // основной цикл урока: ввод символов, подсчёт метрик, повтор при R
 {
     Lesson *lesson = lesson_load(path);
     if (!lesson) return RESULT_LESSONS;
@@ -261,22 +285,34 @@ ResultAction lesson_run(const char *path)
         memset(states, 0, lesson->len * sizeof(CharState));
         Metrics metrics = {0};
         int cursor_pos  = 0;
+
+        /* пропустить ведущие \n если есть */
+        while (cursor_pos < lesson->len && lesson->text[cursor_pos] == '\n') {
+            states[cursor_pos] = CHAR_CORRECT;
+            cursor_pos++;
+        }
+
         lesson_draw(lesson, cursor_pos, states, &metrics);
 
         int ch;
         while ((ch = getch()) != ERR) {
             if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
+                /* пропустить \n при откате */
+                while (cursor_pos > 0 && lesson->text[cursor_pos - 1] == '\n') {
+                    cursor_pos--;
+                    states[cursor_pos] = CHAR_UNTYPED;
+                }
                 if (cursor_pos > 0) {
                     cursor_pos--;
                     if (states[cursor_pos] == CHAR_CORRECT) metrics.correct--;
                     else if (states[cursor_pos] == CHAR_WRONG) metrics.errors--;
                     states[cursor_pos] = CHAR_UNTYPED;
                 }
-            } else if (ch == 27) { /* Esc — досрочный выход */
+            } else if (ch == 27) { /* Esc - досрочный выход */
                 break;
             } else if (ch == KEY_RESIZE) {
                 /* перерисовать при resize */
-            } else if (ch >= 32 && ch < 127) {
+            } else if (ch == '\t' || (ch >= 32 && ch < 127)) {
                 if (!metrics.started) {
                     clock_gettime(CLOCK_MONOTONIC, &metrics.start);
                     metrics.started = 1;
@@ -291,7 +327,12 @@ ResultAction lesson_run(const char *path)
                     }
                     cursor_pos++;
                 }
-                if (cursor_pos == lesson->len)
+                /* авто-пропуск \n после символа */
+                while (cursor_pos < lesson->len && lesson->text[cursor_pos] == '\n') {
+                    states[cursor_pos] = CHAR_CORRECT;
+                    cursor_pos++;
+                }
+                if (cursor_pos >= lesson->len)
                     break;
             }
 
@@ -314,7 +355,7 @@ ResultAction lesson_run(const char *path)
 #define MAX_ENTRIES 64
 #define PATH_MAX_LEN 512
 
-void lesson_select_menu(const char *dir)
+void lesson_select_menu(const char *dir) // сканирует dir на .txt файлы, сортирует, показывает список для выбора
 {
     char names[MAX_ENTRIES][LESSON_NAME_MAX];
     char paths[MAX_ENTRIES][PATH_MAX_LEN];

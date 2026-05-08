@@ -34,7 +34,7 @@ static const char *items[MENU_ITEMS] = {
     "Exit",
 };
 
-static void draw_hline(int row, int col, chtype left, chtype right)
+static void draw_hline(int row, int col, chtype left, chtype right) // рисует горизонтальную линию рамки с заданными угловыми символами
 {
     mvaddch(row, col, left);
     for (int i = 1; i < MENU_WIDTH - 1; i++)
@@ -42,7 +42,7 @@ static void draw_hline(int row, int col, chtype left, chtype right)
     mvaddch(row, col + MENU_WIDTH - 1, right);
 }
 
-void draw_main_menu(int selected)
+void draw_main_menu(int selected) // рисует рамку с лого и пунктами меню, выделяет выбранный пункт
 {
     int row = (LINES - MENU_HEIGHT) / 2;
     int col = (COLS  - MENU_WIDTH)  / 2;
@@ -113,7 +113,7 @@ void draw_main_menu(int selected)
     refresh();
 }
 
-MenuOption menu_run(void)
+MenuOption menu_run(void) // цикл ввода главного меню, возвращает выбранный пункт MenuOption
 {
     int selected = 0;
     draw_main_menu(selected);

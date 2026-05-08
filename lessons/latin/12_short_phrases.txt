@@ -1,0 +1,4 @@
+open the file and read it
+close the connection on exit
+check if the value is null
+loop until the end of input

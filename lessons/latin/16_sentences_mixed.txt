@@ -1,0 +1,4 @@
+Every function must have a clear purpose.
+Use short names only for loop counters.
+A null pointer causes undefined behavior.
+Always free memory after you allocate it.

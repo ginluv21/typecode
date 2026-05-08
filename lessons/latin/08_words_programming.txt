@@ -1,0 +1,4 @@
+int void return const struct
+char float double static bool
+null true false break continue
+typedef enum union extern inline

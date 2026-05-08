@@ -67,17 +67,14 @@
 ```
 main.c
   │
-  ├── ui.c          ← всё что рисуется на экране
-  ├── typing.c      ← логика ввода и сравнения символов
-  ├── lessons.c     ← загрузка и парсинг файлов уроков
-  ├── stats.c       ← сохранение и чтение статистики
-  └── heatmap.c     ← анализ ошибок по клавишам
+  ├── ui.c      ← инициализация ncurses, цветовые пары
+  ├── menu.c    ← главное меню, навигация
+  └── lesson.c  ← загрузка урока, ввод, метрики, результаты, выбор из папки
 ```
 
 **Принцип взаимодействия:**
-- `main.c` запускает ncurses и вызывает меню из `ui.c`
-- `ui.c` вызывает `typing.c` когда пользователь начинает урок
-- `typing.c` получает текст через `lessons.c` и пишет результат через `stats.c`
+- `main.c` вызывает `ui_init()`, крутит цикл `menu_run()` -> `lesson_select_menu()`
+- `lesson_select_menu()` вызывает `lesson_run()` для каждого выбранного урока
 - Модули не должны напрямую вызывать друг друга кроме случаев выше
 
 ---
@@ -88,30 +85,19 @@ main.c
 typecode/
 │
 ├── src/
-│   ├── main.c           # Точка входа. Инициализация ncurses, запуск меню.
-│   ├── ui.c             # Отрисовка всех экранов, навигация меню.
-│   ├── ui.h
-│   ├── typing.c         # Typing engine: ввод, сравнение, подсветка.
-│   ├── typing.h
-│   ├── lessons.c        # Загрузка уроков из файлов, сканирование папок.
-│   ├── lessons.h
-│   ├── stats.c          # Сохранение результатов, чтение истории.
-│   ├── stats.h
-│   ├── heatmap.c        # Накопление и визуализация ошибок по клавишам.
-│   └── heatmap.h
+│   ├── main.c           # Точка входа, SIGWINCH, главный цикл меню
+│   ├── menu.c           # Отрисовка и цикл главного меню
+│   ├── ui.c             # Инициализация ncurses, цветовые пары
+│   └── lesson.c         # Загрузка, отрисовка, ввод, метрики, результаты, выбор уроков
 │
-├── include/             # Общие заголовки (типы, константы, макросы)
-│   └── common.h
+├── include/
+│   ├── typecode.h       # Общие типы и цветовые константы
+│   ├── menu.h
+│   ├── ui.h
+│   └── lesson.h         # Lesson, Metrics, CharState, ResultAction, прототипы
 │
 ├── lessons/
-│   ├── latin/           # Базовые уроки (домашний ряд, цифры и т.д.)
-│   ├── c/               # Сниппеты C
-│   ├── python/          # Сниппеты Python
-│   ├── javascript/      # Сниппеты JavaScript
-│   ├── bash/            # Сниппеты Bash
-│   └── go/              # Сниппеты Go
-│
-├── data/                # Данные пользователя (в .gitignore)
+│   └── latin/           # 20 уроков (01_home_row.txt - 20_final.txt)
 │
 ├── build/               # Скомпилированные объекты (в .gitignore)
 │
@@ -121,148 +107,91 @@ typecode/
 └── TEAM.md              # Этот файл
 ```
 
+**Планируемые модули (ещё не реализованы):**
+- `src/stats.c` - сохранение и чтение статистики сессий
+- `src/heatmap.c` - анализ ошибок по клавишам
+- `lessons/c/`, `lessons/python/`, `lessons/bash/` - сниппеты языков
+
 ---
 
 ## Модули
 
 ### main.c
-Точка входа. Инициализирует ncurses, устанавливает цветовые пары, запускает главный цикл меню, обрабатывает завершение.
+Точка входа. Регистрирует обработчик `SIGWINCH`, инициализирует ncurses через `ui_init()`, крутит главный цикл меню до выбора Exit.
 
 **Ключевые функции:**
-- `main()` - инициализация + главный цикл
-- `init_colors()` - регистрация цветовых пар ncurses
-- `handle_resize()` - обработчик сигнала SIGWINCH
+- `main()` - точка входа, цикл меню
+- `handle_sigwinch()` - обработчик SIGWINCH, ставит флаг resize
 
 ---
 
 ### ui.c / ui.h
-Всё, что отображается на экране. Рисует меню, экраны, рамки. Не содержит бизнес-логики.
+Инициализация и завершение ncurses. Регистрирует цветовые пары.
 
 **Ключевые функции:**
-- `ui_init()` - инициализация модуля
-- `ui_cleanup()` - завершение
-- `draw_main_menu(int selected)` - главное меню
-- `draw_box(int y, int x, int h, int w)` - рамка
-- `draw_centered(int y, const char *text)` - текст по центру
-- `draw_results(const Metrics *m)` - экран результатов
-- `draw_stats_screen()` - экран статистики
-- `draw_settings_screen()` - экран настроек
+- `ui_init()` - `initscr`, `cbreak`, `noecho`, `keypad`, 6 цветовых пар
+- `ui_cleanup()` - `endwin()`
 
-**Цветовые пары:**
+**Цветовые константы (`include/typecode.h`):**
 ```c
-#define COLOR_PAIR_CORRECT  1   // зелёный - правильный символ
-#define COLOR_PAIR_ERROR    2   // красный - ошибка
-#define COLOR_PAIR_CURSOR   3   // жёлтый - текущая позиция
-#define COLOR_PAIR_UI       4   // голубой - элементы интерфейса
-#define COLOR_PAIR_NORMAL   5   // белый - обычный текст
+#define COLOR_GREEN_ON_BLACK  1  // правильный символ
+#define COLOR_RED_ON_BLACK    2  // ошибка
+#define COLOR_YELLOW_ON_BLACK 3  // курсор
+#define COLOR_WHITE_ON_BLACK  4  // обычный текст
+#define COLOR_CYAN_ON_BLACK   5  // элементы UI
+#define COLOR_BLUE_ON_BLACK   6
 ```
 
 ---
 
-### typing.c / typing.h
-Основной движок. Загружает текст, принимает ввод, сравнивает символы, считает метрики.
+### menu.c / menu.h
+Отрисовка и цикл главного меню с ASCII-логотипом.
+
+**Ключевые функции:**
+- `draw_main_menu(int selected)` - рамка, лого, пункты меню
+- `menu_run()` - цикл ввода, возвращает `MenuOption`
+
+---
+
+### lesson.c / lesson.h
+Весь урочный стек: загрузка файла, отрисовка текста, цикл ввода, метрики, экран результатов, выбор урока из папки.
 
 **Ключевые структуры:**
 ```c
 typedef struct {
-    char *text;        // текст урока
-    int   length;      // длина текста
-    int   position;    // текущая позиция курсора
-    int   errors;      // количество ошибок
-    bool  hardcore;    // режим без backspace
-} TypingState;
+    char *text;
+    int   len;
+    char  name[LESSON_NAME_MAX];
+} Lesson;
 
 typedef struct {
-    int   wpm;         // слов в минуту
-    int   cpm;         // символов в минуту
-    float accuracy;    // точность в процентах
-    int   errors;      // ошибок за сессию
-    int   duration;    // время в секундах
+    int correct, errors, wpm;
+    float accuracy;
+    int duration_sec;
+    struct timespec start;
+    int started;
 } Metrics;
+
+typedef enum { CHAR_UNTYPED=0, CHAR_CORRECT, CHAR_WRONG } CharState;
+typedef enum { RESULT_LESSONS=0, RESULT_REPEAT, RESULT_MAIN_MENU } ResultAction;
 ```
 
 **Ключевые функции:**
-- `typing_start(const char *text, bool hardcore)` - запуск сессии
-- `typing_loop(TypingState *state)` - основной цикл ввода
-- `typing_compare(TypingState *state, int ch)` - обработка нажатия
-- `typing_calc_metrics(const TypingState *state)` - подсчёт метрик
-- `typing_render(const TypingState *state)` - отрисовка состояния
+- `lesson_load(path)` - читает .txt файл, имя из имени файла без расширения
+- `lesson_free(lesson)` - освобождает память
+- `lesson_draw(...)` - рисует заголовок, текст с цветами по CharState, строку метрик
+- `lesson_run(path)` - основной цикл: ввод, метрики, повтор по R
+- `lesson_show_results(...)` - итоговый экран WPM/Accuracy/Errors/Time, ждёт R/Esc/Q
+- `lesson_select_menu(dir)` - сканирует dir на .txt, сортирует, показывает список
 
 **Формула WPM:**
 ```
-WPM = (правильных символов / 5) / время в минутах
+WPM = (correct / 5) / время_в_минутах
 ```
 
----
-
-### lessons.c / lessons.h
-Загрузка и управление уроками. Читает файлы из папок, возвращает списки уроков.
-
-**Ключевые структуры:**
-```c
-typedef struct {
-    char name[128];    // название урока (имя файла без расширения)
-    char path[512];    // полный путь к файлу
-} LessonEntry;
-
-typedef struct {
-    char *text;        // содержимое файла
-    char  name[128];   // название
-} Lesson;
-```
-
-**Ключевые функции:**
-- `lessons_scan(const char *dir, LessonEntry *out, int max)` - сканирование папки
-- `lesson_load(const char *path)` - загрузка файла урока
-- `lesson_free(Lesson *l)` - освобождение памяти
-
----
-
-### stats.c / stats.h
-Сохранение и чтение статистики. Данные хранятся в `~/.typecode/stats.txt`.
-
-**Ключевые структуры:**
-```c
-typedef struct {
-    int   wpm;
-    float accuracy;
-    int   errors;
-    int   duration;
-    char  lesson[128];
-    long  timestamp;
-} SessionResult;
-```
-
-**Ключевые функции:**
-- `stats_save(const SessionResult *r)` - дописать результат в файл
-- `stats_load(SessionResult *out, int max)` - загрузить последние N сессий
-- `stats_best_wpm()` - лучший WPM за всё время
-- `stats_avg_wpm(int last_n)` - средний WPM за последние N сессий
-- `stats_ensure_dir()` - создать `~/.typecode/` если нет
-
-**Формат строки в файле:**
-```
-timestamp|wpm|accuracy|errors|duration|lesson_name
-1715000000|74|97.3|2|42|c_for_loop
-```
-
----
-
-### heatmap.c / heatmap.h
-Накопление статистики ошибок по клавишам. Данные хранятся в `~/.typecode/heatmap.txt`.
-
-**Ключевые структуры:**
-```c
-typedef struct {
-    int counts[128];   // ошибки по ASCII коду символа
-} Heatmap;
-```
-
-**Ключевые функции:**
-- `heatmap_record_error(Heatmap *h, char c)` - записать ошибку
-- `heatmap_save(const Heatmap *h)` - сохранить в файл
-- `heatmap_load(Heatmap *h)` - загрузить из файла
-- `heatmap_draw()` - ASCII визуализация клавиатуры с цветами
+**Обработка спецсимволов:**
+- `\t` - отрисовывается как `>` с продвижением до следующего кратного 4 столбца
+- `\n` - автоматически пропускается (CHAR_CORRECT), курсор на него не встаёт
 
 ---
 
@@ -381,13 +310,27 @@ time_attack_duration=60
 | 6 | Навигация по меню | ✅ Готово | #29 |
 | 7 | Typing engine — загрузка и отрисовка текста | ✅ Готово | #33 |
 | 8 | Typing engine — посимвольный ввод и сравнение | ✅ Готово | #34 |
-| 9 | Метрики в реальном времени (WPM, Accuracy, Errors) | 🔄 В работе | — |
-| 10 | Экран результатов | ⬜ Не начато | — |
-| 11 | Уроки 1–5 | ⬜ Не начато | — |
+| 9 | Метрики в реальном времени (WPM, Accuracy, Errors) | ✅ Готово | #35 |
+| 10 | Экран результатов | ✅ Готово | #37 |
+| 11 | Уроки 1–5 | ✅ Готово | #38 |
 
-### v1.0 и v2.0+
+### v1.0
 
-Задачи #12–#27 — не начаты.
+| # | Задача | Статус | PR |
+|---|--------|--------|-----|
+| 12 | Уроки 6–20, Tab-клавиша, переход по строкам, комментарии к функциям | 🔄 В работе | #40 |
+| 13 | Парсер списка уроков из папки (lesson_select_menu) | ✅ Готово | #40 |
+| 14 | Programming Languages - раздел и сниппеты | ⬜ Не начато | — |
+| 15 | Загрузка кастомного файла | ⬜ Не начато | — |
+| 16 | Модуль статистики - структуры и сохранение | ⬜ Не начато | — |
+| 17 | Экран Statistics | ⬜ Не начато | — |
+| 18 | Hardcore mode | ⬜ Не начато | — |
+| 19 | Режимы практики (Time Attack, Infinite) | ⬜ Не начато | — |
+| 20 | Экран Settings | ⬜ Не начато | — |
+
+### v2.0+
+
+Задачи #21–#27 — не начаты.
 
 ---
 
