@@ -15,6 +15,14 @@ static const char *items[MENU_ITEMS] = {
     "Exit",
 };
 
+static void draw_hline(int row, int col, chtype left, chtype right)
+{
+    mvaddch(row, col, left);
+    for (int i = 1; i < MENU_WIDTH - 1; i++)
+        mvaddch(row, col + i, ACS_HLINE);
+    mvaddch(row, col + MENU_WIDTH - 1, right);
+}
+
 void draw_main_menu(int selected)
 {
     int row = (LINES - MENU_HEIGHT) / 2;
@@ -22,15 +30,12 @@ void draw_main_menu(int selected)
 
     clear();
 
-    /* box */
+    /* top border */
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-    mvprintw(row, col, "╔");
-    for (int i = 1; i < MENU_WIDTH - 1; i++)
-        mvprintw(row, col + i, "═");
-    mvprintw(row, col + MENU_WIDTH - 1, "╗");
+    draw_hline(row, col, ACS_ULCORNER, ACS_URCORNER);
 
     /* title row */
-    mvprintw(row + 1, col, "║");
+    mvaddch(row + 1, col, ACS_VLINE);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
     attron(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
@@ -38,20 +43,17 @@ void draw_main_menu(int selected)
     attroff(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
 
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-    mvprintw(row + 1, col + MENU_WIDTH - 1, "║");
+    mvaddch(row + 1, col + MENU_WIDTH - 1, ACS_VLINE);
 
     /* separator */
-    mvprintw(row + 2, col, "╠");
-    for (int i = 1; i < MENU_WIDTH - 1; i++)
-        mvprintw(row + 2, col + i, "═");
-    mvprintw(row + 2, col + MENU_WIDTH - 1, "╣");
+    draw_hline(row + 2, col, ACS_LTEE, ACS_RTEE);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
     /* menu items */
     for (int i = 0; i < MENU_ITEMS; i++) {
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-        mvprintw(row + 3 + i, col, "║");
-        mvprintw(row + 3 + i, col + MENU_WIDTH - 1, "║");
+        mvaddch(row + 3 + i, col, ACS_VLINE);
+        mvaddch(row + 3 + i, col + MENU_WIDTH - 1, ACS_VLINE);
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
         if (i == selected) {
@@ -67,16 +69,11 @@ void draw_main_menu(int selected)
 
     /* bottom border */
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-    mvprintw(row + 9, col, "╚");
-    for (int i = 1; i < MENU_WIDTH - 1; i++)
-        mvprintw(row + 9, col + i, "═");
-    mvprintw(row + 9, col + MENU_WIDTH - 1, "╝");
+    draw_hline(row + 9, col, ACS_LLCORNER, ACS_LRCORNER);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
     /* hint */
-    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-    mvprintw(row + MENU_HEIGHT + 1, col + 4, "↑↓ move   Enter select   q quit");
-    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    mvprintw(row + MENU_HEIGHT + 1, col + 3, "up/dn move   Enter select   q quit");
 
     refresh();
 }
@@ -94,6 +91,11 @@ int menu_run(void)
                 break;
             case KEY_DOWN:
                 selected = (selected + 1) % MENU_ITEMS;
+                break;
+            case '\n':
+            case KEY_ENTER:
+                if (selected == MENU_ITEMS - 1)
+                    return selected;
                 break;
             case KEY_RESIZE:
                 break;
