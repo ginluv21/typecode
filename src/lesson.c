@@ -1,5 +1,4 @@
 #define _POSIX_C_SOURCE 200809L
-THIS_IS_A_TEST_ERROR
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
