@@ -6,6 +6,21 @@
 
 ---
 
+## Navigation
+
+- [What is typecode?](#what-is-typecode)
+- [Features](#features)
+- [Interface](#interface)
+- [Installation](#installation)
+- [Project structure](#project-structure)
+- [Makefile targets](#makefile-targets)
+- [Keyboard shortcuts](#keyboard-shortcuts)
+- [Tech stack](#tech-stack)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+
+---
+
 ## What is typecode?
 
 typecode is a TUI typing trainer designed specifically for programmers. Unlike generic typing tools, typecode trains you on real code — syntax, patterns, and constructs from the languages you actually use every day.
@@ -54,24 +69,24 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 ### Main menu
 
 ```
-╔══════════════════════════════════════════════╗
-║                  typecode                   ║
-╠══════════════════════════════════════════════╣
-║  [1] Lessons                                ║
-║  [2] Programming Languages                  ║
-║  [3] Practice                               ║
-║  [4] Statistics                             ║
-║  [5] Settings                               ║
-║  [0] Exit                                   ║
-╚══════════════════════════════════════════════╝
+┌──────────────────────────────┐
+│           typecode           │
+├──────────────────────────────┤
+│  1. Lessons                  │
+│  2. Programming Languages    │
+│  3. Practice                 │
+│  4. Statistics               │
+│  5. Settings                 │
+│  6. Exit                     │
+└──────────────────────────────┘
 ```
 
 ### Typing session
 
 ```
-╔══════════════════════════════════════════════╗
-║ C Language Practice                [NORMAL] ║
-╠══════════════════════════════════════════════╣
+┌──────────────────────────────────────────────┐
+│ C Language Practice                [NORMAL]  │
+├──────────────────────────────────────────────┤
 
   for (int i = 0; i < n; i++) {
       printf("%d\n", i);
@@ -80,9 +95,9 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
   for (int i = 0; i <
                    ^
 
-╠══════════════════════════════════════════════╣
-║ WPM: 74   Accuracy: 97%   Errors: 2   0:42 ║
-╚══════════════════════════════════════════════╝
+├──────────────────────────────────────────────┤
+│ WPM: 74   Accuracy: 97%   Errors: 2   0:42  │
+└──────────────────────────────────────────────┘
 ```
 
 - **Green** — correct characters
@@ -92,51 +107,16 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 ### Results screen
 
 ```
-╔══════════════════════════════════════════════╗
-║              Session Complete               ║
-╠══════════════════════════════════════════════╣
-║  WPM        74                              ║
-║  Accuracy   97%                             ║
-║  Errors     2                               ║
-║  Time       0:42                            ║
-╠══════════════════════════════════════════════╣
-║  [R] Retry    [Q] Main menu                 ║
-╚══════════════════════════════════════════════╝
-```
-
----
-
-## Code examples you will type
-
-**C**
-```c
-for (int i = 0; i < n; i++) {
-    printf("%d\n", arr[i]);
-}
-```
-
-**Python**
-```python
-if __name__ == "__main__":
-    result = [x * 2 for x in range(10)]
-```
-
-**JavaScript**
-```javascript
-const result = arr.map(x => x * 2).filter(x => x > 5);
-```
-
-**Bash**
-```bash
-grep -r "main" src/ | awk '{print $1}'
-```
-
-**Go**
-```go
-func main() {
-    ch := make(chan int, 10)
-    go worker(ch)
-}
+┌──────────────────────────────────────────────┐
+│                Session Complete              │
+├──────────────────────────────────────────────┤
+│  WPM        74                               │
+│  Accuracy   97%                              │
+│  Errors     2                                │
+│  Time       0:42                             │
+├──────────────────────────────────────────────┤
+│  [R] Retry    [Q] Main menu                  │
+└──────────────────────────────────────────────┘
 ```
 
 ---
@@ -178,12 +158,12 @@ sudo dnf install ncurses-devel
 ```
 typecode/
 ├── src/
-│   ├── main.c          # Entry point, ncurses init
-│   ├── ui.c / ui.h     # Drawing, colors, layout
+│   ├── main.c          # Entry point
+│   ├── ui.c / ui.h     # ncurses init, colors
+│   ├── menu.c / menu.h # Main menu drawing and navigation
 │   ├── typing.c / .h   # Typing engine, input loop
 │   ├── stats.c / .h    # Statistics, session saving
-│   ├── lessons.c / .h  # Lesson loader, file parser
-│   └── heatmap.c / .h  # Key frequency analysis
+│   └── lessons.c / .h  # Lesson loader, file parser
 ├── include/            # Shared headers
 ├── lessons/
 │   ├── latin/          # Basic typing lessons
@@ -197,19 +177,6 @@ typecode/
 ├── Makefile
 └── README.md
 ```
-
----
-
-## Custom file mode
-
-You can load any file from your system and type it:
-
-```
-Main menu → Practice → Load custom file
-Enter path: /home/user/projects/myapp/main.c
-```
-
-typecode will load the file and let you type through it. Great for practicing on your own codebase.
 
 ---
 
@@ -228,32 +195,13 @@ make clean    # Remove build artifacts
 
 | Key | Action |
 |-----|--------|
-| `↑` / `↓` | Navigate menu |
+| `up` / `dn` | Navigate menu |
 | `1`–`6` | Direct menu selection |
 | `Enter` | Confirm |
 | `Backspace` | Fix last character |
 | `Esc` | Exit current session |
 | `R` | Retry lesson |
 | `Q` | Back to menu |
-
----
-
-## Statistics
-
-typecode tracks your progress between sessions:
-
-- Best WPM ever
-- Average WPM over last 10 sessions
-- Average accuracy
-- Per-lesson history
-
-Stats are saved to `~/.typecode/stats.txt`.
-
----
-
-## Hardcore mode
-
-Enable in Settings. Backspace is disabled — every mistake counts and cannot be fixed. Forces you to slow down and think before you type.
 
 ---
 
@@ -274,9 +222,13 @@ No C++. No heavy frameworks. No unnecessary dependencies.
 ## Roadmap
 
 - [x] Project structure and GitHub issues
-- [ ] MVP: core typing engine
-- [ ] MVP: main menu
-- [ ] MVP: 5 base lessons
+- [x] Makefile
+- [x] main.c — entry point
+- [x] ui.c — ncurses init and colors
+- [x] Main menu with navigation
+- [ ] Typing engine
+- [ ] 5 base lessons
+- [ ] Results screen
 - [ ] v1.0: 20 lessons + programming languages
 - [ ] v1.0: statistics + custom file loading
 - [ ] v1.0: hardcore mode + practice modes
@@ -288,7 +240,7 @@ Full task list: [GitHub Project](https://github.com/users/ginluv21/projects/3)
 
 ## Contributing
 
-This project is open source and beginner-friendly. Built by developers learning C.
+This project is open source and built by students learning C.
 
 1. Fork the repo
 2. Create a branch: `git checkout -b feature/your-feature`
@@ -296,13 +248,3 @@ This project is open source and beginner-friendly. Built by developers learning 
 4. Open a Pull Request
 
 Check the [Issues](https://github.com/ginluv21/typecode/issues) for tasks labeled `MVP` or `v1.0`.
-
----
-
-## License
-
-MIT License. See [LICENSE](LICENSE) for details.
-
----
-
-*Built with ncurses and a desire to type faster.*
