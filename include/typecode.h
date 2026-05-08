@@ -1,0 +1,10 @@
+#ifndef TYPECODE_H
+#define TYPECODE_H
+
+#define COLOR_GREEN_ON_BLACK  1
+#define COLOR_RED_ON_BLACK    2
+#define COLOR_YELLOW_ON_BLACK 3
+#define COLOR_WHITE_ON_BLACK  4
+#define COLOR_CYAN_ON_BLACK   5
+
+#endif
