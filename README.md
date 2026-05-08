@@ -1,14 +1,5 @@
 # typecode
 
-```
- _                          _
-| |_ _   _ _ __   ___  ___| | ___   _  ___
-| __| | | | '_ \ / _ \/ __| |/ / | | |/ _ \
-| |_| |_| | |_) |  __/ (__|   <| |_| |  __/
- \__|\__, | .__/ \___|\___|_|\_\\__,_|\___|
-     |___/|_|
-```
-
 > A terminal-based typing trainer for programmers. Built in pure C with ncurses.
 
 ---
