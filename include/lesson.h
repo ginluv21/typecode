@@ -4,12 +4,24 @@
 #include <time.h>
 
 #define LESSON_NAME_MAX 128
+#define MAX_LESSONS 64
+#define LESSON_PATH_MAX 512
 
 typedef enum {
     CHAR_UNTYPED = 0,
     CHAR_CORRECT,
     CHAR_WRONG
 } CharState;
+
+typedef struct {
+    char name[LESSON_NAME_MAX];   /* название (из имени файла) */
+    char path[LESSON_PATH_MAX];   /* полный путь к файлу */
+} LessonEntry;
+
+typedef struct {
+    LessonEntry entries[MAX_LESSONS];
+    int count;
+} LessonList;
 
 typedef struct {
     int             correct;
@@ -40,5 +52,10 @@ void         lesson_draw(const Lesson *lesson, int cursor_pos,
 ResultAction lesson_show_results(const Metrics *metrics, const char *name);
 ResultAction lesson_run(const char *path);
 void         lesson_select_menu(const char *dir);
+
+LessonList  *lessons_scan(const char *dir);
+void         lessons_free(LessonList *list);
+int          lessons_run_menu(const char *dir);
+const char  *language_select_menu(void);
 
 #endif
