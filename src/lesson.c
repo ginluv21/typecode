@@ -352,48 +352,60 @@ ResultAction lesson_run(const char *path) // основной цикл урок�
     return action;
 }
 
-#define MAX_ENTRIES 64
-#define PATH_MAX_LEN 512
-
 void lesson_select_menu(const char *dir) // сканирует dir на .txt файлы, сортирует, показывает список для выбора
 {
-    char names[MAX_ENTRIES][LESSON_NAME_MAX];
-    char paths[MAX_ENTRIES][PATH_MAX_LEN];
-    int  count = 0;
+    lessons_run_menu(dir);
+}
+
+LessonList *lessons_scan(const char *dir) {
+    LessonList *list = malloc(sizeof(LessonList));
+    if (!list) return NULL;
+    list->count = 0;
 
     DIR *d = opendir(dir);
-    if (!d) return;
+    if (!d) { free(list); return NULL; }
 
     struct dirent *ent;
-    while ((ent = readdir(d)) && count < MAX_ENTRIES) {
+    while ((ent = readdir(d)) && list->count < MAX_LESSONS) {
         char *dot = strrchr(ent->d_name, '.');
         if (!dot || strcmp(dot, ".txt") != 0) continue;
 
-        snprintf(paths[count], PATH_MAX_LEN, "%s/%s", dir, ent->d_name);
+        LessonEntry *entry = &list->entries[list->count];
+        snprintf(entry->path, LESSON_PATH_MAX, "%s/%s", dir, ent->d_name);
 
         // убрать расширение, заменить _ на пробел
-        strncpy(names[count], ent->d_name, LESSON_NAME_MAX - 1);
-        names[count][LESSON_NAME_MAX - 1] = '\0';
-        char *d2 = strrchr(names[count], '.');
+        strncpy(entry->name, ent->d_name, LESSON_NAME_MAX - 1);
+        entry->name[LESSON_NAME_MAX - 1] = '\0';
+        char *d2 = strrchr(entry->name, '.');
         if (d2) *d2 = '\0';
-        for (char *p = names[count]; *p; p++)
+        for (char *p = entry->name; *p; p++)
             if (*p == '_') *p = ' ';
 
-        count++;
+        list->count++;
     }
     closedir(d);
 
-    if (count == 0) return;
+    if (list->count == 0) { free(list); return NULL; }
 
     // сортировка по имени файла
-    for (int i = 0; i < count - 1; i++)
-        for (int j = i + 1; j < count; j++)
-            if (strcmp(paths[i], paths[j]) > 0) {
-                char tmp[LESSON_NAME_MAX];
-                strcpy(tmp, names[i]); strcpy(names[i], names[j]); strcpy(names[j], tmp);
-                char tmpp[PATH_MAX_LEN];
-                strcpy(tmpp, paths[i]); strcpy(paths[i], paths[j]); strcpy(paths[j], tmpp);
+    for (int i = 0; i < list->count - 1; i++)
+        for (int j = i + 1; j < list->count; j++)
+            if (strcmp(list->entries[i].path, list->entries[j].path) > 0) {
+                LessonEntry tmp = list->entries[i];
+                list->entries[i] = list->entries[j];
+                list->entries[j] = tmp;
             }
+
+    return list;
+}
+
+void lessons_free(LessonList *list) {
+    if (list) free(list);
+}
+
+int lessons_run_menu(const char *dir) {
+    LessonList *list = lessons_scan(dir);
+    if (!list) return 0;
 
     int selected = 0;
     int ch;
@@ -407,14 +419,14 @@ void lesson_select_menu(const char *dir) // сканирует dir на .txt ф�
         mvhline(2, 0, ACS_HLINE, COLS);
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < list->count; i++) {
             if (i == selected) {
                 attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
-                mvprintw(4 + i, 3, " %s ", names[i]);
+                mvprintw(4 + i, 3, " %s ", list->entries[i].name);
                 attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
             } else {
                 attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-                mvprintw(4 + i, 3, " %s ", names[i]);
+                mvprintw(4 + i, 3, " %s ", list->entries[i].name);
                 attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
             }
         }
@@ -427,11 +439,14 @@ void lesson_select_menu(const char *dir) // сканирует dir на .txt ф�
 
         ch = getch();
         if (ch == 27) break;
-        if (ch == KEY_UP)   selected = (selected - 1 + count) % count;
-        if (ch == KEY_DOWN) selected = (selected + 1) % count;
+        if (ch == KEY_UP)   selected = (selected - 1 + list->count) % list->count;
+        if (ch == KEY_DOWN) selected = (selected + 1) % list->count;
         if (ch == '\n' || ch == KEY_ENTER) {
-            ResultAction a = lesson_run(paths[selected]);
+            ResultAction a = lesson_run(list->entries[selected].path);
             if (a == RESULT_MAIN_MENU) break;
         }
     }
+
+    lessons_free(list);
+    return 1;
 }
