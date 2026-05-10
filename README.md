@@ -122,22 +122,25 @@ sudo dnf install ncurses-devel
 ```
 typecode/
 ├── src/
-│   ├── main.c          # Точка входа
-│   ├── ui.c / ui.h     # Инициализация ncurses, цвета
-│   ├── menu.c / menu.h # Отрисовка и навигация меню
-│   ├── typing.c / .h   # Движок печати, цикл ввода
-│   ├── stats.c / .h    # Статистика, сохранение сессий
-│   └── lessons.c / .h  # Загрузчик уроков, парсер файлов
-├── include/            # Общие заголовочные файлы
+│   ├── main.c       # Точка входа, SIGWINCH, Practice load-file
+│   ├── ui.c         # Инициализация ncurses, цветовые пары
+│   ├── menu.c       # Главное меню, навигация
+│   ├── lesson.c     # Движок печати, уроки, экран результатов
+│   └── lessons.c    # Управление списком уроков (LessonList)
+├── include/
+│   ├── typecode.h   # Общие константы и типы
+│   ├── ui.h
+│   ├── menu.h
+│   └── lesson.h
 ├── lessons/
-│   ├── latin/          # Базовые уроки печати
-│   ├── c/              # Сниппеты C
-│   ├── python/         # Сниппеты Python
-│   ├── javascript/     # Сниппеты JavaScript
-│   ├── bash/           # Сниппеты Bash
-│   └── go/             # Сниппеты Go
-├── data/               # Данные (статистика, конфиг)
-├── build/              # Скомпилированные объекты (в .gitignore)
+│   ├── latin/       # 20 базовых уроков
+│   ├── c/           # Сниппеты C
+│   ├── python/      # Сниппеты Python
+│   ├── javascript/  # Сниппеты JavaScript
+│   ├── bash/        # Сниппеты Bash
+│   └── go/          # Сниппеты Go
+├── data/            # Данные (статистика, конфиг - v1.0)
+├── build/           # Скомпилированные объекты (gitignore)
 ├── Makefile
 └── README.md
 ```
@@ -149,7 +152,7 @@ typecode/
 ```bash
 make          # Собрать проект
 make run      # Собрать и запустить
-make debug    # Сборка с -g -fsanitize=address
+make debug    # Сборка с -g -fsanitize=address,undefined
 make clean    # Удалить артефакты сборки
 ```
 

@@ -122,22 +122,25 @@ sudo dnf install ncurses-devel
 ```
 typecode/
 ├── src/
-│   ├── main.c          # Entry point
-│   ├── ui.c / ui.h     # ncurses init, colors
-│   ├── menu.c / menu.h # Main menu drawing and navigation
-│   ├── typing.c / .h   # Typing engine, input loop
-│   ├── stats.c / .h    # Statistics, session saving
-│   └── lessons.c / .h  # Lesson loader, file parser
-├── include/            # Shared headers
+│   ├── main.c       # Entry point, SIGWINCH, Practice load-file
+│   ├── ui.c         # ncurses init, color pairs
+│   ├── menu.c       # Main menu, navigation
+│   ├── lesson.c     # Typing engine, lessons, results screen
+│   └── lessons.c    # Lesson list management (LessonList)
+├── include/
+│   ├── typecode.h   # Shared constants and types
+│   ├── ui.h
+│   ├── menu.h
+│   └── lesson.h
 ├── lessons/
-│   ├── latin/          # Basic typing lessons
-│   ├── c/              # C code snippets
-│   ├── python/         # Python snippets
-│   ├── javascript/     # JS snippets
-│   ├── bash/           # Bash snippets
-│   └── go/             # Go snippets
-├── data/               # Runtime data (stats, config)
-├── build/              # Compiled objects (gitignored)
+│   ├── latin/       # 20 base typing lessons
+│   ├── c/           # C snippets
+│   ├── python/      # Python snippets
+│   ├── javascript/  # JS snippets
+│   ├── bash/        # Bash snippets
+│   └── go/          # Go snippets
+├── data/            # Runtime data (stats, config - v1.0)
+├── build/           # Compiled objects (gitignored)
 ├── Makefile
 └── README.md
 ```
@@ -149,7 +152,7 @@ typecode/
 ```bash
 make          # Build the project
 make run      # Build and run
-make debug    # Build with -g -fsanitize=address
+make debug    # Build with -g -fsanitize=address,undefined
 make clean    # Remove build artifacts
 ```
 
