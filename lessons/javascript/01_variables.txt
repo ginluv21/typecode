@@ -1,0 +1,4 @@
+const name = "Alice";
+let count = 5;
+var isReady = true;
+const PI = 3.14;

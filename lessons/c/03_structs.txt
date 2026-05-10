@@ -1,0 +1,4 @@
+struct Point { int x; int y; };
+struct Point p = {1, 2};
+p.x = 10;
+struct Node node = {.value = 5, .next = NULL};

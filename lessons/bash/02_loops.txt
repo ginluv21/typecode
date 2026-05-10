@@ -1,0 +1,9 @@
+for file in *.txt; do
+    echo "Found $file"
+done
+
+count=0
+while [ $count -lt 3 ]; do
+    echo $count
+    count=$((count + 1))
+done

@@ -1,0 +1,5 @@
+nums = [1, 2, 3, 4, 5]
+squares = [x**2 for x in nums]
+first = nums[0]
+last = nums[-1]
+nums.append(6)
