@@ -70,7 +70,7 @@ const char *language_select_menu(void) {
         }
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(row + h - 2, col + 3, "Enter - выбрать язык   Esc - назад");
+        mvprintw(row + h - 2, col + 3, "Enter - select   Esc - back");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
         refresh();
