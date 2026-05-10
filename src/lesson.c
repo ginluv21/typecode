@@ -111,6 +111,21 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
         char ch = lesson->text[i];
 
         if (ch == '\n') {
+            if (states == NULL || states[i] == CHAR_UNTYPED) {
+                if (i == cursor_pos) {
+                    attron(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD | A_REVERSE);
+                    mvaddch(text_row, text_col, '$');
+                    attroff(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD | A_REVERSE);
+                } else {
+                    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+                    mvaddch(text_row, text_col, '$');
+                    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+                }
+            } else if (states[i] == CHAR_WRONG) {
+                attron(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+                mvaddch(text_row, text_col, '$');
+                attroff(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+            }
             text_row++;
             text_col = TEXT_MARGIN;
             continue;
@@ -282,22 +297,11 @@ static ResultAction lesson_run_internal(Lesson *lesson)
         Metrics metrics = {0};
         int cursor_pos  = 0;
 
-        // пропустить ведущие переносы строк
-        while (cursor_pos < lesson->len && lesson->text[cursor_pos] == '\n') {
-            states[cursor_pos] = CHAR_CORRECT;
-            cursor_pos++;
-        }
-
         lesson_draw(lesson, cursor_pos, states, &metrics);
 
         int ch;
         while ((ch = getch()) != ERR) {
             if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
-                // пропустить переносы при откате
-                while (cursor_pos > 0 && lesson->text[cursor_pos - 1] == '\n') {
-                    cursor_pos--;
-                    states[cursor_pos] = CHAR_UNTYPED;
-                }
                 if (cursor_pos > 0) {
                     cursor_pos--;
                     if (states[cursor_pos] == CHAR_CORRECT) metrics.correct--;
@@ -308,24 +312,20 @@ static ResultAction lesson_run_internal(Lesson *lesson)
                 break;
             } else if (ch == KEY_RESIZE) {
                 // перерисовать при изменении размера терминала
-            } else if (ch == '\t' || (ch >= 32 && ch < 127)) {
+            } else if (ch == '\t' || ch == '\n' || ch == KEY_ENTER || (ch >= 32 && ch < 127)) {
                 if (!metrics.started) {
                     clock_gettime(CLOCK_MONOTONIC, &metrics.start);
                     metrics.started = 1;
                 }
                 if (cursor_pos < lesson->len) {
-                    if (ch == lesson->text[cursor_pos]) {
+                    char input = (ch == KEY_ENTER) ? '\n' : (char)ch;
+                    if (input == lesson->text[cursor_pos]) {
                         states[cursor_pos] = CHAR_CORRECT;
                         metrics.correct++;
                     } else {
                         states[cursor_pos] = CHAR_WRONG;
                         metrics.errors++;
                     }
-                    cursor_pos++;
-                }
-                // авто-пропуск переносов строк после символа
-                while (cursor_pos < lesson->len && lesson->text[cursor_pos] == '\n') {
-                    states[cursor_pos] = CHAR_CORRECT;
                     cursor_pos++;
                 }
                 if (cursor_pos >= lesson->len)
