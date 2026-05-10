@@ -1,5 +1,4 @@
 #include <ncurses.h>
-#include <string.h>
 #include "menu.h"
 #include "typecode.h"
 
@@ -8,21 +7,23 @@
 #define MENU_WIDTH      50
 #define MENU_HEIGHT     14  // top + 5 logo + sep + 6 items + bottom
 
-// цвета Google/Rubik - по одному на каждую строку лого
+// цвета строк куба: рамка, верхний ряд, средний, нижний, рамка+имя
 static const int logo_colors[LOGO_LINES] = {
-    COLOR_RED_ON_BLACK,
-    COLOR_BLUE_ON_BLACK,
-    COLOR_YELLOW_ON_BLACK,
-    COLOR_GREEN_ON_BLACK,
     COLOR_CYAN_ON_BLACK,
+    COLOR_GREEN_ON_BLACK,
+    COLOR_YELLOW_ON_BLACK,
+    COLOR_RED_ON_BLACK,
+    COLOR_WHITE_ON_BLACK,
 };
 
+// куб Рубика 3x3: левые 3 колонки = T, правые 3 колонки = C
+// все строки одинаковой визуальной ширины (28) для корректного центрирования
 static const char *logo[LOGO_LINES] = {
-    " _                              _",
-    "| |_ _  _ _ __  ___  __ ___  __| | ___",
-    "|  _| || | '_ \\/ -_)/ _/ _ \\/ _` |/ -_)",
-    " \\__|\\_, | .__/\\___|\\__\\___/\\__,_|\\___|",
-    "     |__/|_|",
+    "╔══╦══╦══╦══╦══╦══╗         ",
+    "║▓▓║▓▓║▓▓║▓▓║▓▓║▓▓║         ",
+    "║  ║▓▓║  ║▓▓║  ║  ║         ",
+    "║  ║▓▓║  ║▓▓║▓▓║▓▓║         ",
+    "╚══╩══╩══╩══╩══╩══╝ typecode",
 };
 
 static const char *items[MENU_ITEMS] = {
@@ -33,6 +34,18 @@ static const char *items[MENU_ITEMS] = {
     "Settings",
     "Exit",
 };
+
+// считает визуальную ширину UTF-8 строки (количество символов, не байт)
+static int utf8_visual_width(const char *s)
+{
+    int width = 0;
+    while (*s) {
+        if (((unsigned char)*s & 0xC0) != 0x80)
+            width++;
+        s++;
+    }
+    return width;
+}
 
 static void draw_hline(int row, int col, chtype left, chtype right) // рисует горизонтальную линию рамки с заданными угловыми символами
 {
@@ -49,8 +62,8 @@ void draw_main_menu(int selected) // рисует рамку с лого и пу
 
     int max_logo_w = 0;
     for (int i = 0; i < LOGO_LINES; i++) {
-        int len = (int)strlen(logo[i]);
-        if (len > max_logo_w) max_logo_w = len;
+        int w = utf8_visual_width(logo[i]);
+        if (w > max_logo_w) max_logo_w = w;
     }
     int logo_col = col + 1 + (MENU_WIDTH - 2 - max_logo_w) / 2;
 
