@@ -4,6 +4,8 @@
 
 > A terminal-based typing trainer for programmers. Built in pure C with ncurses.
 
+![typecode preview](assets/preview.png)
+
 ---
 
 ## Navigation
