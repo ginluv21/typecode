@@ -1,0 +1,8 @@
+def square(x):
+    return x * x
+
+def greet(name):
+    print("Hello", name)
+
+value = square(5)
+greet("Bob")

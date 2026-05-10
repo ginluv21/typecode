@@ -1,0 +1,5 @@
+go func() {
+    println("running in goroutine")
+}()
+
+println("main thread")

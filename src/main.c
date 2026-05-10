@@ -1,4 +1,5 @@
 #include <signal.h>
+#include <stdio.h>
 #include "typecode.h"
 #include "ui.h"
 #include "menu.h"
@@ -20,8 +21,16 @@ int main(void) // точка входа: инит ncurses, главный цик
     MenuOption choice;
     do {
         choice = menu_run();
-        if (choice == MENU_LESSONS)
+        if (choice == MENU_LESSONS) {
             lesson_select_menu("lessons/latin");
+        } else if (choice == MENU_LANGUAGES) {
+            const char *lang = language_select_menu();
+            if (lang) {
+                char path[64];
+                snprintf(path, sizeof(path), "lessons/%s", lang);
+                lessons_run_menu(path);
+            }
+        }
     } while (choice != MENU_EXIT);
 
     ui_cleanup();

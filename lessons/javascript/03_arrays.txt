@@ -1,0 +1,4 @@
+const nums = [1, 2, 3];
+const doubled = nums.map(x => x * 2);
+const first = nums[0];
+nums.push(4);

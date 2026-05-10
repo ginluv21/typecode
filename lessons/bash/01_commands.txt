@@ -1,0 +1,4 @@
+ls -la
+cd /tmp
+echo "Hello World"
+mkdir test_dir
