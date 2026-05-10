@@ -271,11 +271,8 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
     return RESULT_LESSONS;
 }
 
-ResultAction lesson_run(const char *path) // основной цикл урока: ввод символов, подсчёт метрик, повтор при R
+static ResultAction lesson_run_internal(Lesson *lesson)
 {
-    Lesson *lesson = lesson_load(path);
-    if (!lesson) return RESULT_LESSONS;
-
     CharState *states = calloc(lesson->len, sizeof(CharState));
     if (!states) { lesson_free(lesson); return RESULT_LESSONS; }
 
@@ -349,6 +346,26 @@ ResultAction lesson_run(const char *path) // основной цикл урок�
     free(states);
     lesson_free(lesson);
     return action;
+}
+
+ResultAction lesson_run(const char *path) // основной цикл урока: ввод символов, подсчёт метрик, повтор при R
+{
+    Lesson *lesson = lesson_load(path);
+    if (!lesson) return RESULT_LESSONS;
+    return lesson_run_internal(lesson);
+}
+
+ResultAction lesson_run_with_name(const char *path, const char *display_name)
+{
+    Lesson *lesson = lesson_load(path);
+    if (!lesson) return RESULT_LESSONS;
+
+    if (display_name) {
+        strncpy(lesson->name, display_name, LESSON_NAME_MAX - 1);
+        lesson->name[LESSON_NAME_MAX - 1] = '\0';
+    }
+
+    return lesson_run_internal(lesson);
 }
 
 void lesson_select_menu(const char *dir)
