@@ -45,16 +45,6 @@ typedef struct {
     char  name[LESSON_NAME_MAX];
 } Lesson;
 
-typedef struct {
-    char name[LESSON_NAME_MAX];   /* название (из имени файла) */
-    char path[LESSON_PATH_MAX];   /* полный путь к файлу */
-} LessonEntry;
-
-typedef struct {
-    LessonEntry entries[MAX_LESSONS];
-    int count;
-} LessonList;
-
 Lesson      *lesson_load(const char *path);
 void         lesson_free(Lesson *lesson);
 void         lesson_draw(const Lesson *lesson, int cursor_pos,
