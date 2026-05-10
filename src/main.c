@@ -1,4 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +12,7 @@
 #define FILE_PATH_MAX 512
 #define MAX_DISPLAY_LINES 500
 #define WARNING_FILE_SIZE (50 * 1024)
+#define _POSIX_C_SOURCE 200809L
 
 static volatile sig_atomic_t g_resized = 0;
 
