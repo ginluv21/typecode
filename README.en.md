@@ -4,6 +4,8 @@
 
 > A terminal-based typing trainer for programmers. Built in pure C with ncurses.
 
+![typecode preview](assets/preview.png)
+
 ---
 
 ## Navigation
@@ -67,41 +69,11 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 
 ### Main menu
 
-```
-┌────────────────────────────────────────────────┐
-│     _                              _           │
-│    | |_ _  _ _ __  ___  __ ___  __| | ___      │
-│    |  _| || | '_ \/ -_)/ _/ _ \/ _` |/ -_)     │
-│     \__|\_, | .__/\___|\__\___/\__,_|\___|     │
-│         |__/|_|                                │
-├────────────────────────────────────────────────┤
-│ 1. Lessons                                     │
-│ 2. Programming Languages                       │
-│ 3. Practice                                    │
-│ 4. Statistics                                  │
-│ 5. Settings                                    │
-│ 6. Exit                                        │
-└────────────────────────────────────────────────┘
-```
+![Main menu](assets/preview.png)
 
 ### Typing session
 
-```
-┌──────────────────────────────────────────────┐
-│ C Language Practice                [NORMAL]  │
-├──────────────────────────────────────────────┤
-
-  for (int i = 0; i < n; i++) {
-      printf("%d\n", i);
-  }
-
-  for (int i = 0; i <
-                   ^
-
-├──────────────────────────────────────────────┤
-│ WPM: 74   Accuracy: 97%   Errors: 2   0:42  │
-└──────────────────────────────────────────────┘
-```
+![Typing session](assets/Typing%20session.png)
 
 - **Green** - correct characters
 - **Red** - mistakes
@@ -109,18 +81,7 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 
 ### Results screen
 
-```
-┌──────────────────────────────────────────────┐
-│                Session Complete              │
-├──────────────────────────────────────────────┤
-│  WPM        74                               │
-│  Accuracy   97%                              │
-│  Errors     2                                │
-│  Time       0:42                             │
-├──────────────────────────────────────────────┤
-│  [R] Retry    [Q] Main menu                  │
-└──────────────────────────────────────────────┘
-```
+![Results screen](assets/Results%20screen.png)
 
 ---
 
