@@ -51,6 +51,7 @@ void         lesson_draw(const Lesson *lesson, int cursor_pos,
                          const CharState *states, const Metrics *metrics);
 ResultAction lesson_show_results(const Metrics *metrics, const char *name);
 ResultAction lesson_run(const char *path);
+ResultAction lesson_run_with_name(const char *path, const char *display_name);
 void         lesson_select_menu(const char *dir);
 
 LessonList  *lessons_scan(const char *dir);

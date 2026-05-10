@@ -32,3 +32,45 @@ void ui_cleanup(void) // завершает ncurses, возвращает тер
 {
     endwin();
 }
+
+int tui_readline(int row, int col, int maxlen, char *out)
+{
+    if (maxlen <= 0 || !out) return 0;
+
+    curs_set(1);
+    int pos = 0;
+    out[0] = '\0';
+    move(row, col);
+    clrtoeol();
+    refresh();
+
+    while (1) {
+        int ch = getch();
+        if (ch == 27) {
+            out[0] = '\0';
+            break;
+        }
+        if (ch == '\n' || ch == KEY_ENTER) {
+            break;
+        }
+        if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
+            if (pos > 0) {
+                pos--;
+                out[pos] = '\0';
+                mvaddch(row, col + pos, ' ');
+                move(row, col + pos);
+            }
+        } else if (ch >= 32 && ch < 127) {
+            if (pos < maxlen - 1) {
+                out[pos++] = (char)ch;
+                out[pos] = '\0';
+                mvaddch(row, col + pos - 1, ch);
+                move(row, col + pos);
+            }
+        }
+        refresh();
+    }
+
+    curs_set(0);
+    return out[0] != '\0' || (getcurx(stdscr) != col);
+}
