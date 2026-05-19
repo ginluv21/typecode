@@ -6,6 +6,7 @@
 #include <time.h>
 #include "lesson.h"
 #include "typecode.h"
+#include "stats.h"
 
 #define TEXT_MARGIN 3
 
@@ -340,6 +341,18 @@ static ResultAction lesson_run_internal(Lesson *lesson)
 
         metrics.duration_sec = metrics.started ? (int)elapsed_sec(&metrics) : 0;
         action = lesson_show_results(&metrics, lesson->name);
+        if (action != RESULT_REPEAT) {
+            SessionResult r = {
+                .timestamp    = time(NULL),
+                .wpm          = metrics.wpm,
+                .accuracy     = metrics.accuracy,
+                .errors       = metrics.errors,
+                .duration_sec = metrics.duration_sec,
+            };
+            strncpy(r.lesson, lesson->name, LESSON_MAX - 1);
+            r.lesson[LESSON_MAX - 1] = '\0';
+            stats_save(&r);
+        }
 
     } while (action == RESULT_REPEAT);
 

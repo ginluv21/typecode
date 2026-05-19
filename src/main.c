@@ -1,4 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +8,7 @@
 #include "ui.h"
 #include "menu.h"
 #include "lesson.h"
+#include "stats.h"
 
 #define FILE_PATH_MAX 512
 #define MAX_DISPLAY_LINES 500
@@ -286,6 +286,7 @@ static void handle_sigwinch(int sig) // ловит SIGWINCH (resize термин
 int main(void) // точка входа: инит ncurses, главный цикл меню до MENU_EXIT
 {
     signal(SIGWINCH, handle_sigwinch);
+    stats_ensure_dir();
     ui_init();
 
     MenuOption choice;
