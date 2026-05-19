@@ -339,7 +339,8 @@ static ResultAction lesson_run_internal(Lesson *lesson)
 
         if (!metrics.started) break; // ни одной клавиши не нажато - выйти без результатов
 
-        metrics.duration_sec = metrics.started ? (int)elapsed_sec(&metrics) : 0;
+        metrics_update(&metrics);
+        metrics.duration_sec = (int)elapsed_sec(&metrics);
         action = lesson_show_results(&metrics, lesson->name);
         if (action != RESULT_REPEAT) {
             SessionResult r = {
