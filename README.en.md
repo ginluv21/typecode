@@ -58,8 +58,13 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 - Warning when terminal is smaller than 80x24
 - Exit with `q` or `Esc`
 
-### v2.0+ (planned)
-- Keyboard heatmap - see which keys you struggle with most
+### v2.0
+- Keyboard heatmap - ASCII QWERTY visualization with color-coded error frequency
+- Top-10 weak symbols with auto-generated personal practice exercise
+- Heatmap data persists between sessions in `~/.typecode/heatmap.txt`
+- 33 tests across 7 test files, `make coverage` with 60% minimum threshold
+
+### v3.0+ (planned)
 - Cyrillic / Russian lessons
 - Vim mode navigation (`hjkl`)
 - Speed Challenge with ranks (S / A / B / C)
