@@ -1,19 +1,27 @@
 .PHONY: all run debug test coverage check-deps clean
 
+SRC = src/main.c src/lesson.c src/lessons.c src/menu.c src/settings.c src/stats.c src/ui.c src/heatmap.c
+OBJ = $(SRC:.c=.o)
+
 check-deps:
 	@command -v gcc >/dev/null 2>&1 || { echo "Error: gcc not found. Install gcc."; exit 1; }
 	@pkg-config --exists ncurses 2>/dev/null || \
 	  find /usr /usr/local /opt/homebrew -name "ncurses.h" 2>/dev/null | grep -q . || \
 	  { echo "Error: ncurses not found. Install: apt install libncurses-dev / pacman -S ncurses / dnf install ncurses-devel / brew install ncurses"; exit 1; }
 
-all: check-deps
-	gcc -Wall -Wextra -std=c11 -I include -I tests src/*.c -o typecode -lncurses
+all: check-deps typecode
+
+typecode: $(OBJ)
+	gcc -Wall -Wextra -std=c11 -I include -I tests $(OBJ) -o typecode -lncurses
+
+%.o: %.c
+	gcc -Wall -Wextra -std=c11 -I include -I tests -c $< -o $@
 
 run: all
 	./typecode
 
-debug: check-deps
-	gcc -Wall -Wextra -std=c11 -g -fsanitize=address,undefined -I include -I tests src/*.c -o typecode -lncurses
+debug: check-deps typecode
+	gcc -Wall -Wextra -std=c11 -g -fsanitize=address,undefined -I include -I tests $(OBJ) -o typecode -lncurses
 
 test: check-deps
 	@mkdir -p build
@@ -39,4 +47,4 @@ coverage: check-deps
 	@rm -f build/*.gcda build/*.gcno
 
 clean:
-	rm -rf build typecode
+	rm -rf build typecode src/*.o
