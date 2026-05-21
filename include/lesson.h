@@ -2,6 +2,7 @@
 #define LESSON_H
 
 #include <time.h>
+#include "settings.h"
 
 #define LESSON_NAME_MAX 128
 #define MAX_LESSONS 64
@@ -50,13 +51,13 @@ void         lesson_free(Lesson *lesson);
 void         lesson_draw(const Lesson *lesson, int cursor_pos,
                          const CharState *states, const Metrics *metrics);
 ResultAction lesson_show_results(const Metrics *metrics, const char *name);
-ResultAction lesson_run(const char *path);
-ResultAction lesson_run_with_name(const char *path, const char *display_name);
-void         lesson_select_menu(const char *dir);
+ResultAction lesson_run(const char *path, const Settings *s);
+ResultAction lesson_run_with_name(const char *path, const char *display_name, const Settings *s);
+void         lesson_select_menu(const char *dir, const Settings *s);
 
 LessonList  *lessons_scan(const char *dir);
 void         lessons_free(LessonList *list);
-int          lessons_run_menu(const char *dir);
+int          lessons_run_menu(const char *dir, const Settings *s);
 const char  *language_select_menu(void);
 
 

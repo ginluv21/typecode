@@ -287,7 +287,7 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
     return RESULT_LESSONS;
 }
 
-static ResultAction lesson_run_internal(Lesson *lesson)
+static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
 {
     CharState *states = calloc(lesson->len, sizeof(CharState));
     if (!states) { lesson_free(lesson); return RESULT_LESSONS; }
@@ -299,10 +299,16 @@ static ResultAction lesson_run_internal(Lesson *lesson)
         int cursor_pos  = 0;
 
         lesson_draw(lesson, cursor_pos, states, &metrics);
+        if (s->hardcore) {
+            attron(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+            mvprintw(1, COLS - 12, "[HARDCORE]");
+            attroff(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+            refresh();
+        }
 
         int ch;
         while ((ch = getch()) != ERR) {
-            if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
+            if ((ch == KEY_BACKSPACE || ch == 127 || ch == '\b') && !s->hardcore) {
                 if (cursor_pos > 0) {
                     cursor_pos--;
                     if (states[cursor_pos] == CHAR_CORRECT) metrics.correct--;
@@ -361,14 +367,14 @@ static ResultAction lesson_run_internal(Lesson *lesson)
     return action;
 }
 
-ResultAction lesson_run(const char *path) // основной цикл урока: ввод символов, подсчёт метрик, повтор при R
+ResultAction lesson_run(const char *path, const Settings *s)
 {
     Lesson *lesson = lesson_load(path);
     if (!lesson) return RESULT_LESSONS;
-    return lesson_run_internal(lesson);
+    return lesson_run_internal(lesson, s);
 }
 
-ResultAction lesson_run_with_name(const char *path, const char *display_name)
+ResultAction lesson_run_with_name(const char *path, const char *display_name, const Settings *s)
 {
     Lesson *lesson = lesson_load(path);
     if (!lesson) return RESULT_LESSONS;
@@ -378,10 +384,10 @@ ResultAction lesson_run_with_name(const char *path, const char *display_name)
         lesson->name[LESSON_NAME_MAX - 1] = '\0';
     }
 
-    return lesson_run_internal(lesson);
+    return lesson_run_internal(lesson, s);
 }
 
-void lesson_select_menu(const char *dir)
+void lesson_select_menu(const char *dir, const Settings *s)
 {
-    lessons_run_menu(dir);
+    lessons_run_menu(dir, s);
 }

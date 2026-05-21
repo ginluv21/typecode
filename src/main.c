@@ -152,7 +152,7 @@ static char *create_truncated_temp_file(const char *path)
     return strdup(template);
 }
 
-static void practice_load_file(void)
+static void practice_load_file(const Settings *s)
 {
     char path[FILE_PATH_MAX];
 
@@ -211,13 +211,13 @@ static void practice_load_file(void)
                 continue;
             }
 
-            lesson_run_with_name(temp_path, display_name);
+            lesson_run_with_name(temp_path, display_name, s);
             unlink(temp_path);
             free(temp_path);
             return;
         }
 
-        lesson_run_with_name(path, display_name);
+        lesson_run_with_name(path, display_name, s);
         return;
     }
 }
@@ -298,17 +298,17 @@ int main(void) // точка входа: инит ncurses, главный цик
     do {
         choice = menu_run();
         if (choice == MENU_LESSONS) {
-            lesson_select_menu("lessons/latin");
+            lesson_select_menu("lessons/latin", &g_settings);
         } else if (choice == MENU_LANGUAGES) {
             const char *lang = language_select_menu();
             if (lang) {
                 char path[64];
                 snprintf(path, sizeof(path), "lessons/%s", lang);
-                lessons_run_menu(path);
+                lessons_run_menu(path, &g_settings);
             }
         } else if (choice == MENU_PRACTICE) {
             if (practice_menu() == 0) {
-                practice_load_file();
+                practice_load_file(&g_settings);
             }
         } else if (choice == MENU_STATISTICS) {
             stats_draw_screen();
