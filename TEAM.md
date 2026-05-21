@@ -318,52 +318,52 @@ time_limit=60
 
 | # | Задача | Статус | PR |
 |---|--------|--------|-----|
-| [#1](#1---структура-папок-проекта) | Структура папок проекта | ✅ Готово | #26 |
-| [#2](#2---makefile) | Makefile | ✅ Готово | #26 |
-| [#3](#3---mainc---точка-входа) | main.c - точка входа | ✅ Готово | #27 |
-| [#4](#4---uic---инициализация-и-цветовая-система) | ui.c - инициализация и цвета | ✅ Готово | #28 |
-| [#5](#5---отрисовка-главного-меню) | Главное меню с ASCII логотипом | ✅ Готово | #30 |
-| [#6](#6---навигация-по-меню) | Навигация по меню | ✅ Готово | #29 |
-| [#7](#7---typing-engine---загрузка-и-отрисовка-текста) | Typing engine - загрузка и отрисовка текста | ✅ Готово | #33 |
-| [#8](#8---typing-engine---посимвольный-ввод-и-сравнение) | Typing engine - посимвольный ввод и сравнение | ✅ Готово | #34 |
-| [#9](#9---метрики-в-реальном-времени) | Метрики в реальном времени (WPM, Accuracy, Errors) | ✅ Готово | #35 |
-| [#10](#10---экран-результатов) | Экран результатов | ✅ Готово | #37 |
-| [#11](#11---уроки-1-5) | Уроки 1-5 | ✅ Готово | #38 |
+| [#1](#1---структура-папок-проекта) | Структура папок проекта | ✅ Готово | [#26](https://github.com/ginluv21/typecode/pull/26) |
+| [#2](#2---makefile) | Makefile | ✅ Готово | [#26](https://github.com/ginluv21/typecode/pull/26) |
+| [#3](https://github.com/ginluv21/typecode/issues/1) | main.c - точка входа | ✅ Готово | [#27](https://github.com/ginluv21/typecode/pull/27) |
+| [#4](https://github.com/ginluv21/typecode/issues/2) | ui.c - инициализация и цвета | ✅ Готово | [#28](https://github.com/ginluv21/typecode/pull/28) |
+| [#5](https://github.com/ginluv21/typecode/issues/3) | Главное меню с ASCII логотипом | ✅ Готово | [#30](https://github.com/ginluv21/typecode/pull/30) |
+| [#6](https://github.com/ginluv21/typecode/issues/4) | Навигация по меню | ✅ Готово | [#29](https://github.com/ginluv21/typecode/pull/29) |
+| [#7](https://github.com/ginluv21/typecode/issues/5) | Typing engine - загрузка и отрисовка текста | ✅ Готово | [#33](https://github.com/ginluv21/typecode/pull/33) |
+| [#8](https://github.com/ginluv21/typecode/issues/6) | Typing engine - посимвольный ввод и сравнение | ✅ Готово | [#34](https://github.com/ginluv21/typecode/pull/34) |
+| [#9](https://github.com/ginluv21/typecode/issues/7) | Метрики в реальном времени (WPM, Accuracy, Errors) | ✅ Готово | [#35](https://github.com/ginluv21/typecode/pull/35) |
+| [#10](https://github.com/ginluv21/typecode/issues/8) | Экран результатов | ✅ Готово | [#37](https://github.com/ginluv21/typecode/pull/37) |
+| [#11](https://github.com/ginluv21/typecode/issues/9) | Уроки 1-5 | ✅ Готово | [#38](https://github.com/ginluv21/typecode/pull/38) |
 
 ### v1.0
 
 | # | Задача | Статус | PR |
 |---|--------|--------|-----|
-| [#12](#12---уроки-6-20) | Уроки 6-20, Tab, переход по строкам | ✅ Готово | #40 |
-| [#13](#13---парсер-списка-уроков-из-папки) | Парсер списка уроков из папки | ✅ Готово | #40 |
-| [#14](#14---programming-languages---20-уроков-на-каждый-язык) | Programming Languages - 20 уроков на каждый язык | ✅ Готово | #73 |
-| [#15](#15---загрузка-кастомного-файла) | Загрузка кастомного файла | ✅ Готово | #61 |
-| [#16](#16---модуль-статистики) | Модуль статистики | ✅ Готово | #62 |
-| [#17](#17---экран-statistics) | Экран Statistics | ✅ Готово | #62 |
-| [#18](#18---hardcore-mode) | Hardcore mode | ✅ Готово | #64 |
-| [#19](#19---режимы-практики) | Режимы практики (Timed, Infinite) | ✅ Готово | #65 |
-| [#20](#20---экран-settings) | Экран Settings | ✅ Готово | #63 |
-| [#21](#21---динамический-resize-терминала) | Динамический resize терминала | ✅ Готово | #70 #72 |
-| [#22](#22---покрытие-тестами) | Покрытие тестами (coverage) | ✅ Готово | #67 |
-| [#23](#23---выход-по-esc-из-главного-меню) | Выход по Esc из главного меню | ✅ Готово | #73 |
+| [#12](https://github.com/ginluv21/typecode/issues/10) | Уроки 6-20, Tab, переход по строкам | ✅ Готово | [#40](https://github.com/ginluv21/typecode/pull/40) |
+| [#13](https://github.com/ginluv21/typecode/issues/11) | Парсер списка уроков из папки | ✅ Готово | [#40](https://github.com/ginluv21/typecode/pull/40) |
+| [#14](https://github.com/ginluv21/typecode/issues/12) | Programming Languages - 20 уроков на каждый язык | ✅ Готово | [#73](https://github.com/ginluv21/typecode/pull/73) |
+| [#15](https://github.com/ginluv21/typecode/issues/13) | Загрузка кастомного файла | ✅ Готово | [#61](https://github.com/ginluv21/typecode/pull/61) |
+| [#16](https://github.com/ginluv21/typecode/issues/14) | Модуль статистики | ✅ Готово | [#62](https://github.com/ginluv21/typecode/pull/62) |
+| [#17](https://github.com/ginluv21/typecode/issues/15) | Экран Statistics | ✅ Готово | [#62](https://github.com/ginluv21/typecode/pull/62) |
+| [#18](https://github.com/ginluv21/typecode/issues/16) | Hardcore mode | ✅ Готово | [#64](https://github.com/ginluv21/typecode/pull/64) |
+| [#19](https://github.com/ginluv21/typecode/issues/17) | Режимы практики (Timed, Infinite) | ✅ Готово | [#65](https://github.com/ginluv21/typecode/pull/65) |
+| [#20](https://github.com/ginluv21/typecode/issues/18) | Экран Settings | ✅ Готово | [#63](https://github.com/ginluv21/typecode/pull/63) |
+| [#21](https://github.com/ginluv21/typecode/issues/39) | Динамический resize терминала | ✅ Готово | [#70](https://github.com/ginluv21/typecode/pull/70) [#72](https://github.com/ginluv21/typecode/pull/72) |
+| [#22](https://github.com/ginluv21/typecode/issues/66) | Покрытие тестами (coverage) | ✅ Готово | [#67](https://github.com/ginluv21/typecode/pull/67) |
+| [#23](#23---выход-по-esc-из-главного-меню) | Выход по Esc из главного меню | ✅ Готово | [#73](https://github.com/ginluv21/typecode/pull/73) |
 
 ### v2.0
 
 | # | Задача | Статус | PR |
 |---|--------|--------|-----|
-| [#24](#24---heatmap-клавиатуры) | Heatmap клавиатуры | ✅ Готово | feature/heatmap |
-| [#25](#25---анализ-проблемных-символов) | Анализ проблемных символов | ✅ Готово | feature/heatmap |
-| [#26](#26---тесты-и-coverage) | 33 теста в 7 тест-файлах, make coverage | ✅ Готово | #67 |
+| [#24](https://github.com/ginluv21/typecode/issues/19) | Heatmap клавиатуры | ✅ Готово | [#74](https://github.com/ginluv21/typecode/pull/74) |
+| [#25](https://github.com/ginluv21/typecode/issues/20) | Анализ проблемных символов | ✅ Готово | [#75](https://github.com/ginluv21/typecode/pull/75) |
+| [#26](https://github.com/ginluv21/typecode/issues/50) | 33 теста в 7 тест-файлах, make coverage | ✅ Готово | [#67](https://github.com/ginluv21/typecode/pull/67) |
 
 ### v3.0+
 
 | # | Задача | Статус |
 |---|--------|--------|
-| [#27](#27---поддержка-кириллицы) | Поддержка кириллицы | ⬜ Не начато |
-| [#28](#28---vim-mode) | Vim mode | ⬜ Не начато |
-| [#29](#29---speed-challenge) | Speed Challenge | ⬜ Не начато |
-| [#30](#30---splash-screen) | Splash screen | ⬜ Не начато |
-| [#31](#31---man-page-и-документация) | Man page | ⬜ Не начато |
+| [#27](https://github.com/ginluv21/typecode/issues/21) | Поддержка кириллицы | ⬜ Не начато |
+| [#28](https://github.com/ginluv21/typecode/issues/22) | Vim mode | ⬜ Не начато |
+| [#29](https://github.com/ginluv21/typecode/issues/23) | Speed Challenge | ⬜ Не начато |
+| [#30](https://github.com/ginluv21/typecode/issues/24) | Splash screen | ⬜ Не начато |
+| [#31](https://github.com/ginluv21/typecode/issues/25) | Man page | ⬜ Не начато |
 
 ---
 
