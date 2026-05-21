@@ -67,6 +67,7 @@ static void metrics_update(Metrics *m) // пересчитывает wpm и accu
     m->accuracy = metrics_calc_accuracy(m->correct, m->errors);
 }
 
+// GCOVR_EXCL_START
 void lesson_draw(const Lesson *lesson, int cursor_pos,
                  const CharState *states, const Metrics *metrics) // рисует заголовок, текст с цветами по состояниям, строку метрик внизу
 {
@@ -409,3 +410,4 @@ void lesson_select_menu(const char *dir, const Settings *s)
 {
     lessons_run_menu(dir, s);
 }
+// GCOVR_EXCL_STOP

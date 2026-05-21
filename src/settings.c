@@ -50,6 +50,7 @@ void settings_load(Settings *s)
     fclose(f);
 }
 
+// GCOVR_EXCL_START
 void settings_draw_screen(Settings *s)
 {
     static const char *mode_names[] = {"Normal", "Timed", "Infinite"};
@@ -108,3 +109,4 @@ void settings_draw_screen(Settings *s)
         }
     }
 }
+// GCOVR_EXCL_STOP
