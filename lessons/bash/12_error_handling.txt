@@ -1,0 +1,11 @@
+set -euo pipefail
+
+die() {
+	echo "error: $*" >&2
+	exit 1
+}
+
+[ -f "$1" ] || die "file not found: $1"
+cmd || die "command failed"
+trap 'die "interrupted"' INT TERM
+trap 'rm -f /tmp/work.$$' EXIT

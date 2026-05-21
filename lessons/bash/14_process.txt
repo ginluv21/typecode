@@ -1,0 +1,10 @@
+pid=$!
+echo "started PID $pid"
+wait $pid
+status=$?
+kill -0 "$pid" 2>/dev/null && echo "running"
+kill -TERM "$pid"
+jobs -l
+bg %1
+fg %1
+nohup long_task &

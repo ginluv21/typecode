@@ -109,7 +109,7 @@ void draw_main_menu(int selected) // рисует рамку с лого и пу
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
     // подсказка по клавишам
-    mvprintw(row + MENU_HEIGHT + 1, col + 3, "up/dn move   Enter select   q quit");
+    mvprintw(row + MENU_HEIGHT + 1, col + 3, "up/dn move   Enter select   q/Esc quit");
 
     refresh();
 }
@@ -120,8 +120,13 @@ MenuOption menu_run(void) // цикл ввода главного меню, во
     draw_main_menu(selected);
 
     int ch;
-    while ((ch = getch()) != 'q') {
+    while (1) {
+        ch = getch();
         switch (ch) {
+            case 27:
+            case 'q':
+            case 'Q':
+                return MENU_EXIT;
             case KEY_UP:
                 selected = (selected - 1 + MENU_ITEMS) % MENU_ITEMS;
                 break;
@@ -142,6 +147,4 @@ MenuOption menu_run(void) // цикл ввода главного меню, во
         }
         draw_main_menu(selected);
     }
-
-    return MENU_EXIT;
 }

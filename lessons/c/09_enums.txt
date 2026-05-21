@@ -1,0 +1,9 @@
+typedef enum {
+	STATE_IDLE,
+	STATE_RUNNING,
+	STATE_DONE,
+} State;
+State s = STATE_IDLE;
+if (s == STATE_IDLE) {
+	s = STATE_RUNNING;
+}

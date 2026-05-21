@@ -1,0 +1,6 @@
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+Promise.all([fetch("/a"), fetch("/b")])
+	.then(([a, b]) => Promise.all([a.json(), b.json()]))
+	.then(([dataA, dataB]) => console.log(dataA, dataB))
+	.catch(err => console.error(err));

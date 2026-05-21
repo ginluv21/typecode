@@ -1,0 +1,12 @@
+function counter(start = 0) {
+	let count = start;
+	return {
+		inc: () => ++count,
+		dec: () => --count,
+		get: () => count,
+	};
+}
+const c = counter(10);
+c.inc();
+c.inc();
+console.log(c.get());

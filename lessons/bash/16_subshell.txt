@@ -1,0 +1,6 @@
+result=$(grep -c "error" log.txt)
+sum=$(awk '{s+=$1} END{print s}' nums.txt)
+(cd /tmp && tar xf archive.tar)
+{ echo "a"; echo "b"; } > out.txt
+count=$(find . -name "*.py" | wc -l)
+echo "python files: $count"

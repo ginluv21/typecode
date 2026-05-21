@@ -1,0 +1,9 @@
+name="Alice"
+echo "Hello, $name"
+readonly PI=3.14
+unset name
+PATH_NEW="$HOME/bin:$PATH"
+export PATH="$PATH_NEW"
+len=${#name}
+upper=${name^^}
+lower=${name,,}

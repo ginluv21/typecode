@@ -1,9 +1,9 @@
 class User:
-    def __init__(self, name):
-        self.name = name
+	def __init__(self, name):
+		self.name = name
 
-    def greet(self):
-        print("Hi,", self.name)
+	def greet(self):
+		print("Hi,", self.name)
 
 user = User("Alice")
 user.greet()

@@ -1,0 +1,7 @@
+typedef int (*cmp_fn)(const void *, const void *);
+int cmp_int(const void *a, const void *b) {
+	return *(int *)a - *(int *)b;
+}
+qsort(arr, n, sizeof(int), cmp_int);
+int (*op)(int, int) = add;
+int r = op(3, 4);

@@ -1,0 +1,5 @@
+squares = [x**2 for x in range(10)]
+evens = [x for x in range(20) if x % 2 == 0]
+pairs = [(x, y) for x in range(3) for y in range(3)]
+word_len = {w: len(w) for w in ["cat", "dog", "bird"]}
+unique_sq = {x**2 for x in range(-3, 4)}

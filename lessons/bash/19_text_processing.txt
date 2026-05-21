@@ -1,0 +1,6 @@
+sort -t: -k3 -n /etc/passwd | head -5
+join -t: -1 1 -2 1 file1.txt file2.txt
+paste -d, col1.txt col2.txt
+cut -d: -f1,3 /etc/passwd
+tr '[:lower:]' '[:upper:]' < input.txt
+column -t -s, data.csv

@@ -1,0 +1,15 @@
+from dataclasses import dataclass, field
+
+@dataclass
+class Point:
+	x: float
+	y: float
+
+	def distance(self):
+		return (self.x**2 + self.y**2) ** 0.5
+
+@dataclass
+class Config:
+	host: str = "localhost"
+	port: int = 8080
+	tags: list = field(default_factory=list)

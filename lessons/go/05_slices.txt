@@ -1,0 +1,9 @@
+nums := []int{1, 2, 3, 4, 5}
+nums = append(nums, 6)
+sub := nums[1:4]
+cp := make([]int, len(nums))
+copy(cp, nums)
+matrix := make([][]int, 3)
+for i := range matrix {
+	matrix[i] = make([]int, 3)
+}

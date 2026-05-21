@@ -1,0 +1,12 @@
+typedef struct Entry {
+	char key[64];
+	int val;
+	struct Entry *next;
+} Entry;
+unsigned int hash(const char *s) {
+	unsigned int h = 5381;
+	while (*s) h = h * 33 ^ (unsigned char)*s++;
+	return h;
+}
+Entry *table[256] = {NULL};
+int idx = hash(key) % 256;

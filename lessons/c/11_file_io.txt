@@ -1,0 +1,11 @@
+FILE *f = fopen("data.txt", "r");
+if (!f) {
+	perror("fopen");
+	return 1;
+}
+char line[256];
+while (fgets(line, sizeof(line), f)) {
+	line[strcspn(line, "\n")] = '\0';
+	printf("%s\n", line);
+}
+fclose(f);

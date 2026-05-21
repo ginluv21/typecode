@@ -1,0 +1,6 @@
+const [first, second, ...rest] = [1, 2, 3, 4, 5];
+const { x = 0, y = 0, z = 0 } = point;
+const [[a, b], [c, d]] = [[1, 2], [3, 4]];
+function show({ name, age = 0 }) {
+	console.log(name, age);
+}

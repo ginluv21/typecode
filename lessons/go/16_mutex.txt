@@ -1,0 +1,17 @@
+type SafeMap struct {
+	mu sync.RWMutex
+	m  map[string]int
+}
+
+func (s *SafeMap) Set(k string, v int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.m[k] = v
+}
+
+func (s *SafeMap) Get(k string) (int, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	v, ok := s.m[k]
+	return v, ok
+}

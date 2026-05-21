@@ -1,0 +1,4 @@
+cat file.txt | grep "error" | sort | uniq -c | sort -rn | head -10
+ps aux | awk '{print $1, $3}' | sort -k2 -rn | head -5
+ls -la | grep "^-" | wc -l
+find . -name "*.c" | xargs wc -l | sort -rn

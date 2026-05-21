@@ -1,0 +1,12 @@
+from contextlib import contextmanager
+
+@contextmanager
+def timer():
+	import time
+	start = time.time()
+	yield
+	elapsed = time.time() - start
+	print(f"elapsed: {elapsed:.3f}s")
+
+with timer():
+	result = sum(range(1000000))

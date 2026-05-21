@@ -1,0 +1,10 @@
+var x int = 42
+var pi float64 = 3.14
+name := "Alice"
+const MaxSize = 1024
+var (
+	host = "localhost"
+	port = 8080
+)
+i, j := 0, 1
+i, j = j, i

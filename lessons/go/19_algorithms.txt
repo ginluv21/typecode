@@ -1,0 +1,15 @@
+func binarySearch(arr []int, target int) int {
+	lo, hi := 0, len(arr)-1
+	for lo <= hi {
+		mid := lo + (hi-lo)/2
+		switch {
+		case arr[mid] == target:
+			return mid
+		case arr[mid] < target:
+			lo = mid + 1
+		default:
+			hi = mid - 1
+		}
+	}
+	return -1
+}

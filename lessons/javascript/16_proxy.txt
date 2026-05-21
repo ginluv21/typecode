@@ -1,0 +1,11 @@
+const validator = {
+	set(obj, prop, value) {
+		if (prop === "age" && typeof value !== "number") {
+			throw new TypeError("age must be a number");
+		}
+		obj[prop] = value;
+		return true;
+	},
+};
+const person = new Proxy({}, validator);
+person.age = 30;

@@ -1,0 +1,14 @@
+type User struct {
+	Name  string `json:"name"`
+	Age   int    `json:"age"`
+	Email string `json:"email,omitempty"`
+}
+
+data, err := json.Marshal(user)
+if err != nil {
+	return err
+}
+var u User
+if err := json.Unmarshal(data, &u); err != nil {
+	return err
+}

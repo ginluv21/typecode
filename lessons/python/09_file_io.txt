@@ -1,0 +1,8 @@
+with open("data.txt", "r") as f:
+	for line in f:
+		line = line.strip()
+		print(line)
+
+with open("out.txt", "w") as f:
+	f.write("hello\n")
+	f.writelines(["a\n", "b\n"])

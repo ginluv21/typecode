@@ -1,0 +1,12 @@
+def count_up(n):
+	for i in range(n):
+		yield i
+
+gen = count_up(5)
+print(next(gen))
+
+def squares():
+	n = 0
+	while True:
+		yield n * n
+		n += 1

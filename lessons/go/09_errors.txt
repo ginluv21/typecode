@@ -1,0 +1,14 @@
+type NotFoundError struct {
+	Name string
+}
+
+func (e *NotFoundError) Error() string {
+	return fmt.Sprintf("%s: not found", e.Name)
+}
+
+func lookup(name string) (int, error) {
+	if name == "" {
+		return 0, &NotFoundError{Name: name}
+	}
+	return 42, nil
+}

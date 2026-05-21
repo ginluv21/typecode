@@ -1,0 +1,7 @@
+if [ -f "$file" ]; then echo "exists"; fi
+if [ -d "$dir" ]; then echo "is dir"; fi
+if [ -r "$file" ]; then echo "readable"; fi
+while IFS= read -r line; do
+	echo "$line"
+done < input.txt
+find . -name "*.log" -mtime +7 -delete

@@ -1,0 +1,12 @@
+m := map[string]int{
+	"alice": 30,
+	"bob":   25,
+}
+m["carol"] = 28
+if age, ok := m["alice"]; ok {
+	fmt.Println("alice is", age)
+}
+delete(m, "bob")
+for name, age := range m {
+	fmt.Printf("%s: %d\n", name, age)
+}
