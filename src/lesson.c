@@ -335,12 +335,32 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
                     }
                     cursor_pos++;
                 }
-                if (cursor_pos >= lesson->len)
-                    break;
+                if (cursor_pos >= lesson->len) {
+                    if (s->mode == MODE_INFINITE) {
+                        memset(states, 0, lesson->len * sizeof(CharState));
+                        cursor_pos = 0;
+                    } else {
+                        break;
+                    }
+                }
             }
 
             metrics_update(&metrics);
             lesson_draw(lesson, cursor_pos, states, &metrics);
+            if (s->hardcore) {
+                attron(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+                mvprintw(1, COLS - 12, "[HARDCORE]");
+                attroff(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
+                refresh();
+            }
+            if (s->mode == MODE_TIMED && metrics.started) {
+                int remaining = s->time_limit_sec - (int)elapsed_sec(&metrics);
+                if (remaining <= 0) break;
+                attron(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
+                mvprintw(LINES - 1, COLS - 30, "[%3ds]", remaining);
+                attroff(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
+                refresh();
+            }
         }
 
         if (!metrics.started) break; // ни одной клавиши не нажато - выйти без результатов
