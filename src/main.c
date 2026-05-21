@@ -1,5 +1,4 @@
 #define _DEFAULT_SOURCE
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,8 +14,6 @@
 #define FILE_PATH_MAX 512
 #define MAX_DISPLAY_LINES 500
 #define WARNING_FILE_SIZE (50 * 1024)
-
-static volatile sig_atomic_t g_resized = 0;
 
 static void draw_box(int row, int col, int height, int width)
 {
@@ -272,22 +269,18 @@ static int practice_menu(void)
             case KEY_ENTER:
                 return selected;
             case KEY_RESIZE:
-                break;
+                ui_on_resize();
+                if (ui_too_small()) continue;
+                draw_practice_menu(selected);
+                continue;
         }
         draw_practice_menu(selected);
     }
     return 1;
 }
 
-static void handle_sigwinch(int sig) // ловит SIGWINCH (resize терминала), ставит флаг g_resized
-{
-    (void)sig;
-    g_resized = 1;
-}
-
 int main(void) // точка входа: инит ncurses, главный цикл меню до MENU_EXIT
 {
-    signal(SIGWINCH, handle_sigwinch);
     stats_ensure_dir();
     ui_init();
 

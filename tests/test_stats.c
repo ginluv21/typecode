@@ -34,16 +34,15 @@ static void test_load_empty_file(void)
     // when
     // then
 
-    SessionResult buf[10];
     FILE *f = fopen(tmp_path, "r");
     int count = 0;
     char line[512];
-    while (count < 10 && fgets(line, sizeof(line), f)) {
+    while (fgets(line, sizeof(line), f)) {
         SessionResult r = {0};
         if (sscanf(line, "%ld|%d|%f|%d|%d|%127[^\n]",
                    &r.timestamp, &r.wpm, &r.accuracy,
                    &r.errors, &r.duration_sec, r.lesson) == 6)
-            buf[count++] = r;
+            count++;
     }
     fclose(f);
 
@@ -87,15 +86,14 @@ static void test_load_skips_malformed_lines(void)
 
     // when
     FILE *f = fopen(tmp_path, "r");
-    SessionResult buf[10];
     int count = 0;
     char line[512];
-    while (count < 10 && fgets(line, sizeof(line), f)) {
+    while (fgets(line, sizeof(line), f)) {
         SessionResult r = {0};
         if (sscanf(line, "%ld|%d|%f|%d|%d|%127[^\n]",
                    &r.timestamp, &r.wpm, &r.accuracy,
                    &r.errors, &r.duration_sec, r.lesson) == 6)
-            buf[count++] = r;
+            count++;
     }
     fclose(f);
 

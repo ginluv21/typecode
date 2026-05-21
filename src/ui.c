@@ -33,6 +33,28 @@ void ui_cleanup(void) // завершает ncurses, возвращает тер
     endwin();
 }
 
+void ui_on_resize(void) // вызывается при KEY_RESIZE: обновляет размер stdscr, восстанавливает настройки
+{
+    wresize(stdscr, LINES, COLS);
+    clearok(stdscr, TRUE);
+    keypad(stdscr, TRUE);
+    curs_set(0);
+}
+
+int ui_too_small(void)
+{
+    if (LINES >= 24 && COLS >= 80) return 0;
+    clear();
+    attron(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
+    int msg_col = (COLS - 42) / 2;
+    if (msg_col < 0) msg_col = 0;
+    mvprintw(LINES / 2, msg_col,
+             "Terminal too small (min 80x24, now %dx%d)", COLS, LINES);
+    attroff(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
+    refresh();
+    return 1;
+}
+
 int tui_readline(int row, int col, int maxlen, char *out)
 {
     if (maxlen <= 0 || !out) return 0;

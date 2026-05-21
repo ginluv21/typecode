@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include "settings.h"
 #include "typecode.h"
+#include "ui.h"
 
 #define SETTINGS_FILE "/.typecode/settings.conf"
 
@@ -90,6 +91,7 @@ void settings_draw_screen(Settings *s)
         refresh();
 
         int ch = getch();
+        if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
         if (ch == 27) { settings_save(s); return; }
         if (ch == KEY_UP)   sel = (sel - 1 + nrows) % nrows;
         if (ch == KEY_DOWN) sel = (sel + 1) % nrows;
