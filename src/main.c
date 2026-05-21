@@ -10,6 +10,7 @@
 #include "menu.h"
 #include "lesson.h"
 #include "stats.h"
+#include "settings.h"
 
 #define FILE_PATH_MAX 512
 #define MAX_DISPLAY_LINES 500
@@ -290,6 +291,9 @@ int main(void) // точка входа: инит ncurses, главный цик
     stats_ensure_dir();
     ui_init();
 
+    Settings g_settings;
+    settings_load(&g_settings);
+
     MenuOption choice;
     do {
         choice = menu_run();
@@ -308,6 +312,8 @@ int main(void) // точка входа: инит ncurses, главный цик
             }
         } else if (choice == MENU_STATISTICS) {
             stats_draw_screen();
+        } else if (choice == MENU_SETTINGS) {
+            settings_draw_screen(&g_settings);
         }
     } while (choice != MENU_EXIT);
 
