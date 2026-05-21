@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "heatmap.h"
 #include "stats.h"
 #include "typecode.h"
 #include "ui.h"
@@ -158,9 +159,9 @@ void stats_draw_screen(void)
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
         if (total > PAGE_SIZE)
-            mvprintw(LINES - 1, MARGIN, "Esc / Q - back    up/down - scroll");
+            mvprintw(LINES - 1, MARGIN, "Esc / Q - back    H - heatmap    up/down - scroll");
         else
-            mvprintw(LINES - 1, MARGIN, "Esc / Q - back");
+            mvprintw(LINES - 1, MARGIN, "Esc / Q - back    H - heatmap");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
 
         refresh();
@@ -168,6 +169,10 @@ void stats_draw_screen(void)
         int ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
         if (ch == 27 || ch == 'q' || ch == 'Q') break;
+        if (ch == 'h' || ch == 'H') {
+            heatmap_draw_screen(&global_heatmap);
+            continue;
+        }
         if (ch == KEY_UP   && scroll > 0)          scroll--;
         if (ch == KEY_DOWN && scroll < max_scroll)  scroll++;
     }
