@@ -305,6 +305,8 @@ int main(void) // точка входа: инит ncurses, главный цик
             if (practice_menu() == 0) {
                 practice_load_file();
             }
+        } else if (choice == MENU_STATISTICS) {
+            stats_draw_screen();
         }
     } while (choice != MENU_EXIT);
 

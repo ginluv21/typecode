@@ -19,5 +19,6 @@ void  stats_save(const SessionResult *r);
 int   stats_load(SessionResult *out, int max);
 int   stats_best_wpm(void);
 float stats_avg_wpm(int last_n);
+void  stats_draw_screen(void);
 
 #endif
