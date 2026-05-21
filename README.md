@@ -89,9 +89,27 @@ typecode - это TUI-тренажёр печати, созданный спец
 
 ### Требования
 
-- Linux
-- GCC
-- ncurses (`libncurses-dev`)
+| Инструмент | Назначение | Обязателен для |
+|------------|------------|----------------|
+| GCC | Компилятор | `make`, `make test`, `make coverage` |
+| libncurses-dev | TUI библиотека | `make`, `make test`, `make coverage` |
+| Python 3 + gcovr | Отчёт покрытия | `make coverage` |
+
+### Установка зависимостей
+
+```bash
+# Ubuntu / Debian
+sudo apt install gcc libncurses-dev python3-pip
+pip3 install gcovr
+
+# Arch
+sudo pacman -S gcc ncurses python-pip
+pip3 install gcovr
+
+# Fedora
+sudo dnf install gcc ncurses-devel python3-pip
+pip3 install gcovr
+```
 
 ### Сборка из исходников
 
@@ -100,19 +118,6 @@ git clone https://github.com/ginluv21/typecode.git
 cd typecode
 make
 ./typecode
-```
-
-### Установка ncurses (если не установлен)
-
-```bash
-# Ubuntu / Debian
-sudo apt install libncurses-dev
-
-# Arch
-sudo pacman -S ncurses
-
-# Fedora
-sudo dnf install ncurses-devel
 ```
 
 ---
@@ -150,10 +155,13 @@ typecode/
 ## Цели Makefile
 
 ```bash
-make          # Собрать проект
-make run      # Собрать и запустить
-make debug    # Сборка с -g -fsanitize=address,undefined
-make clean    # Удалить артефакты сборки
+make            # Собрать проект
+make run        # Собрать и запустить
+make debug      # Сборка с -g -fsanitize=address,undefined
+make test       # Запустить все тесты
+make coverage   # Тесты + отчёт покрытия (минимум 60%)
+make check-deps # Проверить наличие зависимостей
+make clean      # Удалить артефакты сборки
 ```
 
 ---
@@ -180,7 +188,7 @@ make clean    # Удалить артефакты сборки
 | TUI | ncurses |
 | Сборка | GCC + Makefile |
 | Платформа | Linux |
-| Зависимости | только libncurses |
+| Зависимости | libncurses, gcovr (для coverage) |
 
 Без C++. Без тяжёлых фреймворков. Без лишних зависимостей.
 

@@ -1,15 +1,21 @@
-.PHONY: all run debug test clean
+.PHONY: all run debug test coverage check-deps clean
 
-all:
+check-deps:
+	@command -v gcc >/dev/null 2>&1 || { echo "Error: gcc not found. Install gcc."; exit 1; }
+	@pkg-config --exists ncurses 2>/dev/null || \
+	  find /usr /usr/local /opt/homebrew -name "ncurses.h" 2>/dev/null | grep -q . || \
+	  { echo "Error: ncurses not found. Install: apt install libncurses-dev / pacman -S ncurses / dnf install ncurses-devel / brew install ncurses"; exit 1; }
+
+all: check-deps
 	gcc -Wall -Wextra -std=c11 -I include -I tests src/*.c -o typecode -lncurses
 
 run: all
 	./typecode
 
-debug:
+debug: check-deps
 	gcc -Wall -Wextra -std=c11 -g -fsanitize=address,undefined -I include -I tests src/*.c -o typecode -lncurses
 
-test:
+test: check-deps
 	@mkdir -p build
 	@for f in tests/test_*.c; do \
 	  [ -f "$$f" ] || continue; \
@@ -18,7 +24,9 @@ test:
 	  build/$$(basename $$f .c) || exit 1; \
 	done
 
-coverage:
+coverage: check-deps
+	@python3 -c "import gcovr" 2>/dev/null || \
+	  { echo "Error: gcovr not found. Install: pip3 install gcovr"; exit 1; }
 	@mkdir -p build
 	@rm -f build/*.gcda build/*.gcno
 	@for f in tests/test_*.c; do \
