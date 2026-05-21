@@ -1,0 +1,12 @@
+if (x > 0) {
+	puts("positive");
+} else if (x < 0) {
+	puts("negative");
+} else {
+	puts("zero");
+}
+switch (cmd) {
+	case 'q': return 0;
+	case 'h': help(); break;
+	default: puts("unknown");
+}

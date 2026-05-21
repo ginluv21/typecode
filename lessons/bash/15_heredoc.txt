@@ -1,0 +1,15 @@
+cat <<EOF
+line one
+line two
+EOF
+
+cat <<'EOF'
+no $interpolation here
+EOF
+
+read -r -d '' sql <<SQL
+SELECT *
+FROM users
+WHERE active = 1
+SQL
+echo "$sql"

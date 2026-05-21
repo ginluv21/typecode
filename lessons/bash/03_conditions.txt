@@ -1,5 +1,5 @@
 if [ -f "/etc/passwd" ]; then
-    echo "passwd exists"
+	echo "passwd exists"
 else
-    echo "missing"
+	echo "missing"
 fi

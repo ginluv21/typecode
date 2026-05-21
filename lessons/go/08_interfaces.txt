@@ -1,0 +1,15 @@
+type Stringer interface {
+	String() string
+}
+
+type Animal interface {
+	Speak() string
+	Name() string
+}
+
+type Dog struct{ name string }
+
+func (d Dog) Speak() string { return "woof" }
+func (d Dog) Name() string  { return d.name }
+
+var a Animal = Dog{name: "Rex"}

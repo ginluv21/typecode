@@ -1,0 +1,13 @@
+def factorial(n):
+	if n <= 1:
+		return 1
+	return n * factorial(n - 1)
+
+def flatten(lst):
+	result = []
+	for item in lst:
+		if isinstance(item, list):
+			result.extend(flatten(item))
+		else:
+			result.append(item)
+	return result

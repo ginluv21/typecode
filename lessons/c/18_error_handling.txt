@@ -1,0 +1,11 @@
+int parse(const char *s, int *out) {
+	char *end;
+	long v = strtol(s, &end, 10);
+	if (end == s || *end != '\0') return -1;
+	*out = (int)v;
+	return 0;
+}
+if (parse(input, &val) < 0) {
+	fprintf(stderr, "invalid: %s\n", input);
+	return 1;
+}

@@ -1,0 +1,14 @@
+async function* paginate(url) {
+	let page = 1;
+	while (true) {
+		const res = await fetch(`${url}?page=${page}`);
+		const { data, hasMore } = await res.json();
+		yield data;
+		if (!hasMore) break;
+		page++;
+	}
+}
+
+for await (const batch of paginate("/api/items")) {
+	console.log(batch);
+}

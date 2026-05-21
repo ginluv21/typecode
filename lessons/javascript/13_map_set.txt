@@ -1,0 +1,9 @@
+const map = new Map();
+map.set("key", 42);
+const val = map.get("key");
+map.forEach((v, k) => console.log(k, v));
+
+const set = new Set([1, 2, 3, 2, 1]);
+set.add(4);
+const unique = [...set];
+const inter = new Set([...a].filter(x => b.has(x)));

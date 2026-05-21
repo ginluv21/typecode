@@ -1,0 +1,9 @@
+try:
+	val = int(input("number: "))
+	result = 100 // val
+except ValueError:
+	print("not a number")
+except ZeroDivisionError:
+	print("division by zero")
+finally:
+	print("done")

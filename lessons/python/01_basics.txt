@@ -2,4 +2,4 @@ name = "Alice"
 age = 30
 print(f"{name} is {age} years old")
 if age >= 18:
-    print("adult")
+	print("adult")

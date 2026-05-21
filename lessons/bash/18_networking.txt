@@ -1,0 +1,5 @@
+curl -s -o /dev/null -w "%{http_code}" https://example.com
+curl -X POST -H "Content-Type: application/json" \
+	-d '{"key":"value"}' https://api.example.com/data
+wget -q -O- url | grep "pattern"
+nc -z -w3 host 80 && echo "open" || echo "closed"

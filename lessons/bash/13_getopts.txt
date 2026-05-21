@@ -1,0 +1,12 @@
+usage() { echo "usage: $0 [-v] [-o out] file"; exit 1; }
+verbose=0
+output=""
+while getopts "vo:h" opt; do
+	case $opt in
+		v) verbose=1 ;;
+		o) output="$OPTARG" ;;
+		h) usage ;;
+		*) usage ;;
+	esac
+done
+shift $((OPTIND - 1))

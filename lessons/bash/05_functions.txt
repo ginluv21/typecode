@@ -1,0 +1,15 @@
+greet() {
+	local name="$1"
+	echo "Hello, $name"
+}
+
+sum() {
+	local total=0
+	for n in "$@"; do
+		total=$((total + n))
+	done
+	echo "$total"
+}
+
+greet "Alice"
+sum 1 2 3 4 5

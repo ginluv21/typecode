@@ -1,0 +1,7 @@
+int flags = 0;
+flags |= (1 << 2);
+flags &= ~(1 << 2);
+int bit = (flags >> 3) & 1;
+int is_pow2 = n && !(n & (n - 1));
+unsigned int swap = a ^ b;
+a ^= b; b ^= a; a ^= b;

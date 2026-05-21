@@ -1,0 +1,11 @@
+function flatten(arr) {
+	return arr.reduce((acc, val) =>
+		Array.isArray(val) ? acc.concat(flatten(val)) : acc.concat(val), []);
+}
+
+function deepClone(obj) {
+	if (obj === null || typeof obj !== "object") return obj;
+	const clone = Array.isArray(obj) ? [] : {};
+	for (const key in obj) clone[key] = deepClone(obj[key]);
+	return clone;
+}

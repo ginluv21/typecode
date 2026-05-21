@@ -1,0 +1,6 @@
+const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const valid = email.test("user@example.com");
+const str = "hello world hello";
+const count = (str.match(/hello/g) || []).length;
+const cleaned = str.replace(/\s+/g, " ").trim();
+const [, year, month, day] = "2024-01-15".match(/(\d{4})-(\d{2})-(\d{2})/);

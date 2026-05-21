@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LOGFILE="${1:-app.log}"
+TOP="${2:-10}"
+
+[ -f "$LOGFILE" ] || { echo "usage: $0 <logfile> [top]" >&2; exit 1; }
+
+echo "=== Top $TOP errors ==="
+grep -i "error" "$LOGFILE" \
+	| awk '{$1=$2=$3=""; print $0}' \
+	| sort | uniq -c | sort -rn \
+	| head -"$TOP"

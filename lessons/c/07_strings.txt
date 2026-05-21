@@ -1,0 +1,8 @@
+char buf[64];
+strncpy(buf, src, sizeof(buf) - 1);
+buf[sizeof(buf) - 1] = '\0';
+int len = strlen(buf);
+if (strcmp(buf, "quit") == 0) {
+	return 0;
+}
+snprintf(buf, sizeof(buf), "value=%d", x);

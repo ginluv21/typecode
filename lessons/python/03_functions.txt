@@ -1,8 +1,8 @@
 def square(x):
-    return x * x
+	return x * x
 
-def greet(name):
-    print("Hello", name)
+def greet(name="World"):
+	print("Hello", name)
 
 value = square(5)
 greet("Bob")

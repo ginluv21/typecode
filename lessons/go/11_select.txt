@@ -1,0 +1,17 @@
+timeout := time.After(5 * time.Second)
+ticker := time.NewTicker(time.Second)
+defer ticker.Stop()
+for {
+	select {
+	case <-ticker.C:
+		fmt.Println("tick")
+	case <-timeout:
+		fmt.Println("done")
+		return
+	case v, ok := <-data:
+		if !ok {
+			return
+		}
+		process(v)
+	}
+}

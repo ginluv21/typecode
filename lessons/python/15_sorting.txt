@@ -1,0 +1,7 @@
+nums = [3, 1, 4, 1, 5, 9, 2, 6]
+nums.sort()
+rev = sorted(nums, reverse=True)
+words = ["banana", "apple", "cherry"]
+words.sort(key=len)
+people = [("Bob", 25), ("Alice", 30), ("Eve", 20)]
+people.sort(key=lambda p: p[1])

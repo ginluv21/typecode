@@ -1,0 +1,6 @@
+grep -rn "TODO" src/
+grep -E "^[0-9]{4}-[0-9]{2}-[0-9]{2}" log.txt
+sed 's/foo/bar/g' file.txt
+sed -i.bak '/^#/d' config.txt
+sed -n '10,20p' file.txt
+grep -v "^$" file.txt | sed 's/  */ /g'

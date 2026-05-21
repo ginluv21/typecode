@@ -1,0 +1,6 @@
+import itertools
+
+pairs = list(itertools.combinations([1, 2, 3, 4], 2))
+perms = list(itertools.permutations("abc", 2))
+chained = list(itertools.chain([1, 2], [3, 4], [5]))
+grouped = itertools.groupby(sorted(data), key=lambda x: x[0])

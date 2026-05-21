@@ -1,7 +1,7 @@
 function add(a, b) {
-    return a + b;
+	return a + b;
 }
 
 const greet = (name) => {
-    console.log("Hello", name);
+	console.log("Hello", name);
 };

@@ -1,0 +1,15 @@
+export const PI = 3.14159;
+
+export function add(a, b) {
+	return a + b;
+}
+
+export default class Calculator {
+	constructor() {
+		this.result = 0;
+	}
+	add(n) {
+		this.result += n;
+		return this;
+	}
+}

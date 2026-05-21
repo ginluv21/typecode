@@ -1,0 +1,11 @@
+fruits=("apple" "banana" "cherry")
+echo "${fruits[0]}"
+echo "${fruits[@]}"
+echo "${#fruits[@]}"
+fruits+=("date")
+for fruit in "${fruits[@]}"; do
+	echo "$fruit"
+done
+declare -A map
+map["key"]="value"
+echo "${map["key"]}"

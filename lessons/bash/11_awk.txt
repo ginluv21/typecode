@@ -1,0 +1,5 @@
+awk '{print $1}' file.txt
+awk -F: '{print $1, $3}' /etc/passwd
+awk 'NR > 1 {sum += $2} END {print sum}' data.csv
+awk '/error/ {count++} END {print count}' log.txt
+awk '{if ($3 > 100) print $0}' data.txt

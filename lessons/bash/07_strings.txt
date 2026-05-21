@@ -1,0 +1,7 @@
+str="Hello, World"
+echo "${str:0:5}"
+echo "${str/World/Bash}"
+echo "${str//l/L}"
+echo "${str#*,}"
+echo "${str%,*}"
+trimmed="${str#"${str%%[![:space:]]*}"}"

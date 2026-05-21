@@ -1,0 +1,16 @@
+type Logger struct {
+	prefix string
+}
+
+func (l Logger) Log(msg string) {
+	fmt.Printf("[%s] %s\n", l.prefix, msg)
+}
+
+type Server struct {
+	Logger
+	host string
+	port int
+}
+
+s := Server{Logger: Logger{prefix: "server"}, host: "localhost", port: 8080}
+s.Log("started")

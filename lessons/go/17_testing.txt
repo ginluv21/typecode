@@ -1,0 +1,15 @@
+func TestAdd(t *testing.T) {
+	cases := []struct {
+		a, b, want int
+	}{
+		{1, 2, 3},
+		{0, 0, 0},
+		{-1, 1, 0},
+	}
+	for _, tc := range cases {
+		got := add(tc.a, tc.b)
+		if got != tc.want {
+			t.Errorf("add(%d,%d) = %d, want %d", tc.a, tc.b, got, tc.want)
+		}
+	}
+}

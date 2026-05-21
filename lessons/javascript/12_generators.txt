@@ -1,0 +1,13 @@
+function* range(start, end, step = 1) {
+	for (let i = start; i < end; i += step) {
+		yield i;
+	}
+}
+
+function* fibonacci() {
+	let [a, b] = [0, 1];
+	while (true) {
+		yield a;
+		[a, b] = [b, a + b];
+	}
+}
