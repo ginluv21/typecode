@@ -4,7 +4,7 @@
 
 > A terminal-based typing trainer for programmers. Built in pure C with ncurses.
 
-![typecode preview](assets/preview.png)
+![typecode](assets/screen_main_menu.png)
 
 ---
 
@@ -77,19 +77,56 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 
 ### Main menu
 
-![Main menu](assets/preview.png)
+![Main menu](assets/screen_main_menu.png)
+
+### Lessons
+
+![Lessons list](assets/screen_lesson.png)
+
+20 lessons per language with progressive difficulty.
 
 ### Typing session
 
-![Typing session](assets/Typing%20session.png)
+![Typing session](assets/screen_lang_lesson.png)
 
 - **Green** - correct characters
 - **Red** - mistakes
 - **Yellow** - current cursor position
+- Live metrics: WPM, accuracy, errors
+
+### Hardcore + Timed mode
+
+![Hardcore and Timed](assets/screen_timed_hardcore.png)
+
+In Hardcore mode Backspace is disabled. In Timed mode a countdown timer is shown.
 
 ### Results screen
 
-![Results screen](assets/Results%20screen.png)
+![Results screen](assets/screen_results.png)
+
+### Statistics
+
+![Statistics](assets/screen_statistics.png)
+
+Full session history with best WPM, average accuracy and recent results. Heatmap (`H`) and Weak Spots (`W`) are accessible directly from this screen.
+
+### Settings
+
+![Settings](assets/screen_settings.png)
+
+Toggle Hardcore, practice mode (Normal / Timed / Infinite) and time limit. Config is saved to `~/.typecode/settings.conf`.
+
+### Keyboard heatmap
+
+![Heatmap](assets/screen_heatmap.png)
+
+ASCII QWERTY visualization: green - fewer than 3 errors, yellow - fewer than 10, red - 10 or more. Data persists between sessions.
+
+### Weak spots
+
+![Weak Spots](assets/screen_weak_spots.png)
+
+Top-10 symbols with the most errors. Press `G` to generate a personal practice exercise targeting those symbols.
 
 ---
 

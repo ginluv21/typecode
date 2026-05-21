@@ -4,7 +4,7 @@
 
 > Тренажёр слепой печати для программистов прямо в терминале. Написан на чистом C с использованием ncurses.
 
-![typecode preview](assets/preview.png)
+![typecode](assets/screen_main_menu.png)
 
 ---
 
@@ -77,19 +77,56 @@ typecode - это TUI-тренажёр печати, созданный спец
 
 ### Главное меню
 
-![Главное меню](assets/preview.png)
+![Главное меню](assets/screen_main_menu.png)
+
+### Уроки
+
+![Список уроков](assets/screen_lesson.png)
+
+20 уроков на каждый язык с нарастающей сложностью.
 
 ### Сессия печати
 
-![Сессия печати](assets/Typing%20session.png)
+![Сессия печати](assets/screen_lang_lesson.png)
 
 - **Зелёный** - правильно введённые символы
 - **Красный** - ошибки
 - **Жёлтый** - текущая позиция курсора
+- Метрики в реальном времени: WPM, точность, ошибки
+
+### Hardcore + Timed режим
+
+![Hardcore и Timed](assets/screen_timed_hardcore.png)
+
+В Hardcore режиме Backspace отключён. В Timed режиме отображается обратный таймер.
 
 ### Экран результатов
 
-![Экран результатов](assets/Results%20screen.png)
+![Экран результатов](assets/screen_results.png)
+
+### Статистика
+
+![Статистика](assets/screen_statistics.png)
+
+История всех сессий с лучшим WPM, средней точностью и списком последних результатов. Из статистики доступны Heatmap (`H`) и Weak Spots (`W`).
+
+### Настройки
+
+![Настройки](assets/screen_settings.png)
+
+Переключение Hardcore, режима практики (Normal / Timed / Infinite) и лимита времени. Сохраняются в `~/.typecode/settings.conf`.
+
+### Heatmap клавиатуры
+
+![Heatmap](assets/screen_heatmap.png)
+
+ASCII-визуализация QWERTY: зелёный - меньше 3 ошибок, жёлтый - меньше 10, красный - 10 и больше. Данные накапливаются между сессиями.
+
+### Проблемные символы
+
+![Weak Spots](assets/screen_weak_spots.png)
+
+Топ-10 символов с наибольшим числом ошибок. Клавиша `G` генерирует персональное упражнение на эти символы.
 
 ---
 
