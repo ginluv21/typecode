@@ -7,6 +7,7 @@
 #include "lesson.h"
 #include "typecode.h"
 #include "stats.h"
+#include "heatmap.h"
 #include "ui.h"
 
 #define TEXT_MARGIN 3
@@ -341,6 +342,7 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
                     } else {
                         states[cursor_pos] = CHAR_WRONG;
                         metrics.errors++;
+                        heatmap_record_error(&global_heatmap, lesson->text[cursor_pos], input);
                     }
                     cursor_pos++;
                 }
@@ -375,6 +377,7 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
         if (!metrics.started) break; // ни одной клавиши не нажато - выйти без результатов
 
         metrics.duration_sec = metrics.started ? (int)elapsed_sec(&metrics) : 0;
+        heatmap_save(&global_heatmap);
         action = lesson_show_results(&metrics, lesson->name);
         if (action != RESULT_REPEAT) {
             SessionResult r = {

@@ -9,6 +9,7 @@
 #include "menu.h"
 #include "lesson.h"
 #include "stats.h"
+#include "heatmap.h"
 #include "settings.h"
 
 #define FILE_PATH_MAX 512
@@ -283,6 +284,7 @@ int main(void) // точка входа: инит ncurses, главный цик
 {
     stats_ensure_dir();
     ui_init();
+    heatmap_load(&global_heatmap);
 
     Settings g_settings;
     settings_load(&g_settings);
