@@ -3,6 +3,18 @@
 
 #include <time.h>
 
+static inline int   metrics_calc_wpm(int correct, double elapsed_sec)
+{
+    double mins = elapsed_sec / 60.0;
+    return (mins > 0) ? (int)((correct / 5.0) / mins) : 0;
+}
+
+static inline float metrics_calc_accuracy(int correct, int errors)
+{
+    int total = correct + errors;
+    return (total > 0) ? (correct * 100.0f / total) : 100.0f;
+}
+
 #define LESSON_NAME_MAX 128
 #define MAX_LESSONS 64
 #define LESSON_PATH_MAX 512
