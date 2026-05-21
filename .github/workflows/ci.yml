@@ -18,3 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: make test
+
+  coverage:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - run: make coverage

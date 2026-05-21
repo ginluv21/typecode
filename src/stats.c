@@ -80,6 +80,7 @@ float stats_avg_wpm(int last_n)
     return sum / (n - from);
 }
 
+// GCOVR_EXCL_START
 void stats_draw_screen(void)
 {
     SessionResult sessions[LOAD_MAX];
@@ -164,3 +165,4 @@ void stats_draw_screen(void)
         if (ch == KEY_DOWN && scroll < max_scroll)  scroll++;
     }
 }
+// GCOVR_EXCL_STOP
