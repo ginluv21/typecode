@@ -112,7 +112,7 @@ static int prompt_file_path(char *out, int maxlen)
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
         mvprintw(row + 4, col + 3, "Enter file path:");
         mvprintw(row + 5, col + 3, "> ");
-        mvprintw(row + 8, col + 3, "Esc - отмена");
+        mvprintw(row + 8, col + 3, "Esc - back");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
         refresh();
 
