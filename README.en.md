@@ -48,12 +48,15 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 
 ### v1.0
 - 20 progressive lessons
-- Programming Languages mode: C, Python, JavaScript, Bash, Go
+- Programming Languages mode: C, Python, JavaScript, Bash, Go - 20 lessons per language
 - Load any custom file from the menu and type it
 - Statistics saved between sessions (best WPM, history, accuracy)
 - Hardcore mode - no Backspace allowed
-- Practice modes: Time Attack (30 / 60 / 120s) and Infinite loop
-- Settings screen with persistent config
+- Practice modes: Time Attack (15-300s) and Infinite loop
+- Settings screen with persistent config in `~/.typecode/settings.conf`
+- Dynamic terminal resize on all screens
+- Warning when terminal is smaller than 80x24
+- Exit with `q` or `Esc`
 
 ### v2.0+ (planned)
 - Keyboard heatmap - see which keys you struggle with most
@@ -126,28 +129,32 @@ make
 
 ```
 typecode/
-├── src/
-│   ├── main.c       # Entry point, SIGWINCH, Practice load-file
-│   ├── ui.c         # ncurses init, color pairs
-│   ├── menu.c       # Main menu, navigation
-│   ├── lesson.c     # Typing engine, lessons, results screen
-│   └── lessons.c    # Lesson list management (LessonList)
-├── include/
-│   ├── typecode.h   # Shared constants and types
-│   ├── ui.h
-│   ├── menu.h
-│   └── lesson.h
-├── lessons/
-│   ├── latin/       # 20 base typing lessons
-│   ├── c/           # C snippets
-│   ├── python/      # Python snippets
-│   ├── javascript/  # JS snippets
-│   ├── bash/        # Bash snippets
-│   └── go/          # Go snippets
-├── data/            # Runtime data (stats, config - v1.0)
-├── build/           # Compiled objects (gitignored)
-├── Makefile
-└── README.md
+- src/
+  - main.c        # Entry point, Practice load-file, main menu loop
+  - ui.c          # ncurses init, resize, color pairs
+  - menu.c        # Main menu, navigation
+  - lesson.c      # Typing engine, lessons, results screen
+  - lessons.c     # Lesson list, language selector
+  - stats.c       # Statistics: save, load, screen
+  - settings.c    # Settings: save, load, screen
+- include/
+  - typecode.h    # Shared constants and types
+  - ui.h
+  - menu.h
+  - lesson.h
+  - stats.h
+  - settings.h
+- lessons/
+  - latin/        # 20 base typing lessons (home row -> final)
+  - c/            # 20 C lessons
+  - python/       # 20 Python lessons
+  - javascript/   # 20 JavaScript lessons
+  - bash/         # 20 Bash lessons
+  - go/           # 20 Go lessons
+- tests/          # Test suite (33 tests)
+- build/          # Build artifacts (gitignored)
+- Makefile
+- README.md
 ```
 
 ---
@@ -171,10 +178,10 @@ make clean      # Remove build artifacts
 | Key | Action |
 |-----|--------|
 | `up` / `dn` | Navigate menu |
-| `1`–`6` | Direct menu selection |
+| `1`-`6` | Direct menu selection |
 | `Enter` | Confirm |
 | `Backspace` | Fix last character |
-| `Esc` | Exit current session |
+| `Esc` / `q` | Exit / go back |
 | `R` | Retry lesson |
 | `Q` | Back to menu |
 
