@@ -89,9 +89,27 @@ It feels like a real Linux terminal utility, not a toy. Think `btop`, `lazygit`,
 
 ### Requirements
 
-- Linux
-- GCC
-- ncurses (`libncurses-dev`)
+| Tool | Purpose | Required for |
+|------|---------|--------------|
+| GCC | Compiler | `make`, `make test`, `make coverage` |
+| libncurses-dev | TUI library | `make`, `make test`, `make coverage` |
+| Python 3 + gcovr | Coverage reporting | `make coverage` |
+
+### Install dependencies
+
+```bash
+# Ubuntu / Debian
+sudo apt install gcc libncurses-dev python3-pip
+pip3 install gcovr
+
+# Arch
+sudo pacman -S gcc ncurses python-pip
+pip3 install gcovr
+
+# Fedora
+sudo dnf install gcc ncurses-devel python3-pip
+pip3 install gcovr
+```
 
 ### Build from source
 
@@ -100,19 +118,6 @@ git clone https://github.com/ginluv21/typecode.git
 cd typecode
 make
 ./typecode
-```
-
-### Install ncurses (if missing)
-
-```bash
-# Ubuntu / Debian
-sudo apt install libncurses-dev
-
-# Arch
-sudo pacman -S ncurses
-
-# Fedora
-sudo dnf install ncurses-devel
 ```
 
 ---
@@ -150,10 +155,13 @@ typecode/
 ## Makefile targets
 
 ```bash
-make          # Build the project
-make run      # Build and run
-make debug    # Build with -g -fsanitize=address,undefined
-make clean    # Remove build artifacts
+make            # Build the project
+make run        # Build and run
+make debug      # Build with -g -fsanitize=address,undefined
+make test       # Run all tests
+make coverage   # Run tests + coverage report (min 60%)
+make check-deps # Verify all dependencies are installed
+make clean      # Remove build artifacts
 ```
 
 ---
@@ -180,7 +188,7 @@ make clean    # Remove build artifacts
 | TUI | ncurses |
 | Build | GCC + Makefile |
 | Platform | Linux |
-| Dependencies | libncurses only |
+| Dependencies | libncurses, gcovr (for coverage) |
 
 No C++. No heavy frameworks. No unnecessary dependencies.
 
