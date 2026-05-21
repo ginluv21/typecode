@@ -13,6 +13,8 @@ void heatmap_record_error(Heatmap *h, char expected, char typed);
 void heatmap_load(Heatmap *h);
 void heatmap_save(const Heatmap *h);
 void heatmap_draw_screen(const Heatmap *h);
+void heatmap_draw_weakspots(const Heatmap *h);
+char *heatmap_generate_exercise(const Heatmap *h, int top_n);
 void heatmap_reset(Heatmap *h);
 
 #endif

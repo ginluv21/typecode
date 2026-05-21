@@ -4,6 +4,8 @@
 #include <time.h>
 #include "settings.h"
 
+typedef PracticeMode LessonMode;
+
 static inline int   metrics_calc_wpm(int correct, double elapsed_sec)
 {
     double mins = elapsed_sec / 60.0;
@@ -65,6 +67,7 @@ void         lesson_draw(const Lesson *lesson, int cursor_pos,
 ResultAction lesson_show_results(const Metrics *metrics, const char *name);
 ResultAction lesson_run(const char *path, const Settings *s);
 ResultAction lesson_run_with_name(const char *path, const char *display_name, const Settings *s);
+void         lesson_run_text(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit);
 void         lesson_select_menu(const char *dir, const Settings *s);
 
 LessonList  *lessons_scan(const char *dir);
