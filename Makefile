@@ -1,31 +1,22 @@
-CC      = gcc
-CFLAGS  = -Wall -Wextra -std=c11 -I include
-LIBS    = -lncurses
-TARGET  = typecode
-SRCDIR  = src
-BUILDDIR = build
+.PHONY: all run debug test clean
 
-SRCS = $(wildcard $(SRCDIR)/*.c)
-OBJS = $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(SRCS))
-
-.PHONY: all clean run debug
-
-all: $(BUILDDIR) $(if $(SRCS), $(TARGET))
-
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
-
-$(BUILDDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILDDIR):
-	mkdir -p $(BUILDDIR)
+all:
+	gcc -Wall -Wextra -std=c11 -I include -I tests src/*.c -o typecode -lncurses
 
 run: all
-	./$(TARGET)
+	./typecode
 
-debug: CFLAGS += -g -fsanitize=address -fsanitize=undefined
-debug: all
+debug:
+	gcc -Wall -Wextra -std=c11 -g -fsanitize=address,undefined -I include -I tests src/*.c -o typecode -lncurses
+
+test:
+	@mkdir -p build
+	@for f in tests/test_*.c; do \
+	  [ -f "$$f" ] || continue; \
+	  gcc -Wall -Wextra -std=c11 -I include -I tests -o build/$$(basename $$f .c) \
+	    $$f $$(ls src/*.c | grep -v main) -lncurses && \
+	  build/$$(basename $$f .c) || exit 1; \
+	done
 
 clean:
-	rm -rf $(BUILDDIR) $(TARGET)
+	rm -rf build typecode
