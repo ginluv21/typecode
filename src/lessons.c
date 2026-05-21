@@ -30,6 +30,11 @@ const char *language_select_menu(void) {
     int ch;
 
     while (1) {
+        if (ui_too_small()) {
+            int c = getch();
+            if (c == KEY_RESIZE) ui_on_resize();
+            continue;
+        }
         clear();
 
         int w = 44;
@@ -143,6 +148,11 @@ int lessons_run_menu(const char *dir, const Settings *s) {
     int ch;
 
     while (1) {
+        if (ui_too_small()) {
+            int c = getch();
+            if (c == KEY_RESIZE) ui_on_resize();
+            continue;
+        }
         clear();
 
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));

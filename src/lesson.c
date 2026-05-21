@@ -327,6 +327,7 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
                 break;
             } else if (ch == KEY_RESIZE) {
                 ui_on_resize();
+                if (ui_too_small()) continue;
             } else if (ch == '\t' || ch == '\n' || ch == KEY_ENTER || (ch >= 32 && ch < 127)) {
                 if (!metrics.started) {
                     clock_gettime(CLOCK_MONOTONIC, &metrics.start);
