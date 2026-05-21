@@ -63,10 +63,8 @@ static double elapsed_sec(const Metrics *m) // секунды с момента 
 static void metrics_update(Metrics *m) // пересчитывает wpm и accuracy по текущему elapsed
 {
     if (!m->started) return;
-    double mins = elapsed_sec(m) / 60.0;
-    m->wpm      = (mins > 0) ? (int)((m->correct / 5.0) / mins) : 0;
-    int total   = m->correct + m->errors;
-    m->accuracy = (total > 0) ? (m->correct * 100.0f / total) : 100.0f;
+    m->wpm      = metrics_calc_wpm(m->correct, elapsed_sec(m));
+    m->accuracy = metrics_calc_accuracy(m->correct, m->errors);
 }
 
 void lesson_draw(const Lesson *lesson, int cursor_pos,
