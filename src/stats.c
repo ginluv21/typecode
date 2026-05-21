@@ -159,9 +159,9 @@ void stats_draw_screen(void)
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
         if (total > PAGE_SIZE)
-            mvprintw(LINES - 1, MARGIN, "Esc / Q - back    H - heatmap    up/down - scroll");
+            mvprintw(LINES - 1, MARGIN, "Esc / Q - back    H - heatmap    W - weak spots    up/down - scroll");
         else
-            mvprintw(LINES - 1, MARGIN, "Esc / Q - back    H - heatmap");
+            mvprintw(LINES - 1, MARGIN, "Esc / Q - back    H - heatmap    W - weak spots");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
 
         refresh();
@@ -171,6 +171,10 @@ void stats_draw_screen(void)
         if (ch == 27 || ch == 'q' || ch == 'Q') break;
         if (ch == 'h' || ch == 'H') {
             heatmap_draw_screen(&global_heatmap);
+            continue;
+        }
+        if (ch == 'w' || ch == 'W') {
+            heatmap_draw_weakspots(&global_heatmap);
             continue;
         }
         if (ch == KEY_UP   && scroll > 0)          scroll--;
