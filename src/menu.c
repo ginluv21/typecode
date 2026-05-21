@@ -2,6 +2,7 @@
 #include <string.h>
 #include "menu.h"
 #include "typecode.h"
+#include "ui.h"
 
 #define LOGO_LINES      5
 #define MENU_ITEMS      6
@@ -134,7 +135,10 @@ MenuOption menu_run(void) // цикл ввода главного меню, во
             case '4': case '5': case '6':
                 return (MenuOption)(ch - '1');
             case KEY_RESIZE:
-                break;
+                ui_on_resize();
+                if (ui_too_small()) continue;
+                draw_main_menu(selected);
+                continue;
         }
         draw_main_menu(selected);
     }

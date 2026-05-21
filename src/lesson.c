@@ -7,6 +7,7 @@
 #include "lesson.h"
 #include "typecode.h"
 #include "stats.h"
+#include "ui.h"
 
 #define TEXT_MARGIN 3
 
@@ -185,13 +186,9 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
     refresh();
 }
 
-ResultAction lesson_show_results(const Metrics *metrics, const char *name) // показывает итоговую рамку со статистикой, ждёт R/Esc/Q
+static void draw_results(int row, int col, int w, int h,
+                         const Metrics *metrics, const char *name)
 {
-    int w = 50;
-    int h = 12;
-    int row = (LINES - h) / 2;
-    int col = (COLS  - w) / 2;
-
     int mm = metrics->duration_sec / 60;
     int ss = metrics->duration_sec % 60;
 
@@ -216,19 +213,16 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
     mvaddch(row + h - 1, col + w - 1, ACS_LRCORNER);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    // заголовок
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
     mvprintw(row + 1, col + (w - (int)strlen(name)) / 2, "%s", name);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
 
-    // разделитель
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     mvaddch(row + 2, col, ACS_LTEE);
     mvhline(row + 2, col + 1, ACS_HLINE, w - 2);
     mvaddch(row + 2, col + w - 1, ACS_RTEE);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    // метрики
     int mc = col + 6;
     int vc = col + 22;
 
@@ -255,14 +249,12 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
     mvprintw(row + 7, vc, "%d:%02d", mm, ss);
     attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
-    // разделитель
     attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
     mvaddch(row + h - 3, col, ACS_LTEE);
     mvhline(row + h - 3, col + 1, ACS_HLINE, w - 2);
     mvaddch(row + h - 3, col + w - 1, ACS_RTEE);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-    // кнопки действий
     attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
     mvprintw(row + h - 2, col + 4, "[R] Retry");
     attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
@@ -276,12 +268,29 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
     attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
     refresh();
+}
+
+ResultAction lesson_show_results(const Metrics *metrics, const char *name) // показывает итоговую рамку со статистикой, ждёт R/Esc/Q
+{
+    int w = 50;
+    int h = 12;
+    int row = (LINES - h) / 2;
+    int col = (COLS  - w) / 2;
+
+    draw_results(row, col, w, h, metrics, name);
 
     int ch;
     while ((ch = getch()) != ERR) {
         if (ch == 'r' || ch == 'R')                       return RESULT_REPEAT;
         if (ch == 27 || ch == '\n' || ch == KEY_ENTER)    return RESULT_LESSONS;
         if (ch == 'q' || ch == 'Q')                       return RESULT_MAIN_MENU;
+        if (ch == KEY_RESIZE) {
+            ui_on_resize();
+            row = (LINES - h) / 2;
+            col = (COLS  - w) / 2;
+            if (!ui_too_small())
+                draw_results(row, col, w, h, metrics, name);
+        }
     }
     return RESULT_LESSONS;
 }
@@ -317,7 +326,7 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
             } else if (ch == 27) { // Esc - досрочный выход
                 break;
             } else if (ch == KEY_RESIZE) {
-                // перерисовать при изменении размера терминала
+                ui_on_resize();
             } else if (ch == '\t' || ch == '\n' || ch == KEY_ENTER || (ch >= 32 && ch < 127)) {
                 if (!metrics.started) {
                     clock_gettime(CLOCK_MONOTONIC, &metrics.start);

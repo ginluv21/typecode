@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "lesson.h"
 #include "typecode.h"
+#include "ui.h"
 
 static const char *languages[] = {
     "c",
@@ -76,6 +77,7 @@ const char *language_select_menu(void) {
         refresh();
 
         ch = getch();
+        if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
         if (ch == 27) return NULL;
         if (ch == KEY_UP) selected = (selected - 1 + count) % count;
         if (ch == KEY_DOWN) selected = (selected + 1) % count;
@@ -168,6 +170,7 @@ int lessons_run_menu(const char *dir, const Settings *s) {
         refresh();
 
         ch = getch();
+        if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
         if (ch == 27) break;
         if (ch == KEY_UP) selected = (selected - 1 + list->count) % list->count;
         if (ch == KEY_DOWN) selected = (selected + 1) % list->count;
