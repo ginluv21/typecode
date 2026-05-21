@@ -33,10 +33,10 @@ void ui_cleanup(void) // завершает ncurses, возвращает тер
     endwin();
 }
 
-void ui_on_resize(void) // вызывается при KEY_RESIZE: обновляет размер stdscr, восстанавливает настройки
+void ui_on_resize(void) // вызывается при KEY_RESIZE: переинициализирует ncurses с новыми размерами
 {
-    wresize(stdscr, LINES, COLS);
-    clearok(stdscr, TRUE);
+    endwin();
+    refresh();
     keypad(stdscr, TRUE);
     curs_set(0);
 }

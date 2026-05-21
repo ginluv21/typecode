@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include "stats.h"
 #include "typecode.h"
+#include "ui.h"
 
 #define PAGE_SIZE 10
 #define MARGIN    3
@@ -104,6 +105,11 @@ void stats_draw_screen(void)
     int max_scroll = (total > PAGE_SIZE) ? total - PAGE_SIZE : 0;
 
     for (;;) {
+        if (ui_too_small()) {
+            int c = getch();
+            if (c == KEY_RESIZE) ui_on_resize();
+            continue;
+        }
         clear();
 
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
@@ -160,6 +166,7 @@ void stats_draw_screen(void)
         refresh();
 
         int ch = getch();
+        if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
         if (ch == 27 || ch == 'q' || ch == 'Q') break;
         if (ch == KEY_UP   && scroll > 0)          scroll--;
         if (ch == KEY_DOWN && scroll < max_scroll)  scroll++;

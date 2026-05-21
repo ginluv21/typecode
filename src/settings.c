@@ -58,6 +58,11 @@ void settings_draw_screen(Settings *s)
     int sel = 0;
 
     for (;;) {
+        if (ui_too_small()) {
+            int c = getch();
+            if (c == KEY_RESIZE) ui_on_resize();
+            continue;
+        }
         clear();
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
         mvhline(0, 0, ACS_HLINE, COLS);
