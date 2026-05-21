@@ -419,6 +419,37 @@ ResultAction lesson_run_with_name(const char *path, const char *display_name, co
     return lesson_run_internal(lesson, s);
 }
 
+void lesson_run_text(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit)
+{
+    if (!text) return;
+
+    Lesson *lesson = malloc(sizeof(Lesson));
+    if (!lesson) return;
+
+    lesson->len = (int)strlen(text);
+    lesson->text = malloc(lesson->len + 1);
+    if (!lesson->text) {
+        free(lesson);
+        return;
+    }
+    memcpy(lesson->text, text, lesson->len + 1);
+
+    if (name) {
+        strncpy(lesson->name, name, LESSON_NAME_MAX - 1);
+        lesson->name[LESSON_NAME_MAX - 1] = '\0';
+    } else {
+        lesson->name[0] = '\0';
+    }
+
+    Settings s = {
+        .hardcore = hardcore,
+        .mode = mode,
+        .time_limit_sec = time_limit,
+    };
+
+    lesson_run_internal(lesson, &s);
+}
+
 void lesson_select_menu(const char *dir, const Settings *s)
 {
     lessons_run_menu(dir, s);
