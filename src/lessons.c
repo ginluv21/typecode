@@ -133,7 +133,7 @@ void lessons_free(LessonList *list) {
     free(list);
 }
 
-int lessons_run_menu(const char *dir) {
+int lessons_run_menu(const char *dir, const Settings *s) {
     LessonList *list = lessons_scan(dir);
     if (!list) return 0;
 
@@ -172,7 +172,7 @@ int lessons_run_menu(const char *dir) {
         if (ch == KEY_UP) selected = (selected - 1 + list->count) % list->count;
         if (ch == KEY_DOWN) selected = (selected + 1) % list->count;
         if (ch == '\n' || ch == KEY_ENTER) {
-            ResultAction a = lesson_run(list->entries[selected].path);
+            ResultAction a = lesson_run(list->entries[selected].path, s);
             if (a == RESULT_MAIN_MENU) break;
         }
     }
