@@ -317,6 +317,8 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
     return RESULT_LESSONS;
 }
 
+static Metrics g_last_metrics = {0};
+
 static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
 {
     CharState *states = calloc(lesson->len, sizeof(CharState));
@@ -398,6 +400,7 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
         if (!metrics.started) break; // ни одной клавиши не нажато - выйти без результатов
 
         metrics.duration_sec = metrics.started ? (int)elapsed_sec(&metrics) : 0;
+        g_last_metrics = metrics;
         heatmap_save(&global_heatmap);
         action = lesson_show_results(&metrics, lesson->name);
         if (action != RESULT_REPEAT) {
@@ -440,18 +443,20 @@ ResultAction lesson_run_with_name(const char *path, const char *display_name, co
     return lesson_run_internal(lesson, s);
 }
 
-void lesson_run_text(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit)
+int lesson_run_text_score(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit)
 {
-    if (!text) return;
+    if (!text) return 0;
+
+    g_last_metrics = (Metrics){0};
 
     Lesson *lesson = malloc(sizeof(Lesson));
-    if (!lesson) return;
+    if (!lesson) return 0;
 
     lesson->len = (int)strlen(text);
     lesson->text = malloc(lesson->len + 1);
     if (!lesson->text) {
         free(lesson);
-        return;
+        return 0;
     }
     memcpy(lesson->text, text, lesson->len + 1);
 
@@ -469,6 +474,12 @@ void lesson_run_text(const char *text, const char *name, int hardcore, LessonMod
     };
 
     lesson_run_internal(lesson, &s);
+    return g_last_metrics.wpm;
+}
+
+void lesson_run_text(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit)
+{
+    (void)lesson_run_text_score(text, name, hardcore, mode, time_limit);
 }
 
 void lesson_select_menu(const char *dir, const Settings *s, const AppConfig *cfg)
