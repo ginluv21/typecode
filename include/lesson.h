@@ -61,6 +61,9 @@ typedef struct {
     char  name[LESSON_NAME_MAX];
 } Lesson;
 
+double       elapsed_sec(const Metrics *m);
+void         metrics_update(Metrics *m);
+
 Lesson      *lesson_load(const char *path);
 void         lesson_free(Lesson *lesson);
 void         lesson_draw(const Lesson *lesson, int cursor_pos,

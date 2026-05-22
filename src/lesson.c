@@ -54,7 +54,7 @@ void lesson_free(Lesson *lesson) // освобождает text и сам Lesson
     free(lesson);
 }
 
-static double elapsed_sec(const Metrics *m) // секунды с момента старта урока
+double elapsed_sec(const Metrics *m)
 {
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
@@ -62,7 +62,7 @@ static double elapsed_sec(const Metrics *m) // секунды с момента 
          + (now.tv_nsec - m->start.tv_nsec) / 1e9;
 }
 
-static void metrics_update(Metrics *m) // пересчитывает wpm и accuracy по текущему elapsed
+void metrics_update(Metrics *m)
 {
     if (!m->started) return;
     m->wpm      = metrics_calc_wpm(m->correct, elapsed_sec(m));
