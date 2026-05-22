@@ -98,8 +98,8 @@ void settings_draw_screen(Settings *s, AppConfig *cfg)
 
         int ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
-        if (ch == KEY_UP)   sel = (sel - 1 + nrows) % nrows;
-        if (ch == KEY_DOWN) sel = (sel + 1) % nrows;
+        if (ch == KEY_UP   || (cfg && cfg->vim_mode && ch == 'k')) sel = (sel - 1 + nrows) % nrows;
+        if (ch == KEY_DOWN || (cfg && cfg->vim_mode && ch == 'j')) sel = (sel + 1) % nrows;
         int left = (ch == KEY_LEFT) || (cfg && cfg->vim_mode && ch == 'h');
         int right = (ch == KEY_RIGHT) || (cfg && cfg->vim_mode && ch == 'l');
         if (left || right) {
