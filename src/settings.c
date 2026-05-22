@@ -76,10 +76,9 @@ void settings_draw_screen(Settings *s, AppConfig *cfg)
         snprintf(md, sizeof(md), "Mode:        %s", mode_names[s->mode]);
         snprintf(tl, sizeof(tl), "Time limit:  %ds", s->time_limit_sec);
         snprintf(vm, sizeof(vm), "Vim mode:    %s", (cfg && cfg->vim_mode) ? "On" : "Off");
-        rows[0] = hc; rows[1] = md; rows[2] = tl; rows[3] = vm;
-
         int base_rows = (s->mode == MODE_TIMED) ? 3 : 2;
         int nrows = base_rows + 1; /* +1 for Vim mode */
+        rows[0] = hc; rows[1] = md; rows[2] = tl; rows[base_rows] = vm;
         for (int i = 0; i < nrows; i++) {
             if (i == sel) {
                 attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
@@ -114,13 +113,12 @@ void settings_draw_screen(Settings *s, AppConfig *cfg)
                 s->time_limit_sec += d * 15;
                 if (s->time_limit_sec < 15)  s->time_limit_sec = 15;
                 if (s->time_limit_sec > 300) s->time_limit_sec = 300;
-            } else if (sel == 3) {
+            } else if (sel == base_rows) {
                 if (cfg) cfg->vim_mode = !cfg->vim_mode;
             }
         }
-        if ((ch == '\n' || ch == KEY_ENTER) && (cfg)) {
-            /* allow toggling Vim mode with Enter when selected */
-            if (sel == 3) cfg->vim_mode = !cfg->vim_mode;
+        if ((ch == '\n' || ch == KEY_ENTER) && cfg) {
+            if (sel == base_rows) cfg->vim_mode = !cfg->vim_mode;
         }
         /* save config whenever changed via settings exit */
         if (ch == 27 || ch == 'q' || ch == 'Q') { if (cfg) config_save(cfg); settings_save(s); return; }
