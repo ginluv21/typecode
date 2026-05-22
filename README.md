@@ -145,15 +145,15 @@ ASCII-визуализация QWERTY: зелёный - меньше 3 ошиб�
 ```bash
 # Ubuntu / Debian
 sudo apt install gcc libncurses-dev python3-pip
-pip3 install gcovr
+pip3 install gcovr/sudo apt install gcovr
 
 # Arch
 sudo pacman -S gcc ncurses python-pip
-pip3 install gcovr
+pip3 install gcovr/sudo apt install gcovr
 
 # Fedora
 sudo dnf install gcc ncurses-devel python3-pip
-pip3 install gcovr
+pip3 install gcovr/sudo apt install gcovr
 ```
 
 ### Сборка из исходников
