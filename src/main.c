@@ -11,6 +11,7 @@
 #include "stats.h"
 #include "heatmap.h"
 #include "settings.h"
+#include "config.h"
 
 #define FILE_PATH_MAX 512
 #define MAX_DISPLAY_LINES 500
@@ -288,10 +289,12 @@ int main(void) // точка входа: инит ncurses, главный цик
 
     Settings g_settings;
     settings_load(&g_settings);
+    AppConfig g_config;
+    config_load(&g_config);
 
     MenuOption choice;
     do {
-        choice = menu_run();
+        choice = menu_run(&g_config);
         if (choice == MENU_LESSONS) {
             lesson_select_menu("lessons/latin", &g_settings);
         } else if (choice == MENU_LANGUAGES) {
@@ -308,7 +311,7 @@ int main(void) // точка входа: инит ncurses, главный цик
         } else if (choice == MENU_STATISTICS) {
             stats_draw_screen();
         } else if (choice == MENU_SETTINGS) {
-            settings_draw_screen(&g_settings);
+            settings_draw_screen(&g_settings, &g_config);
         }
     } while (choice != MENU_EXIT);
 
