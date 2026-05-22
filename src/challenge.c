@@ -13,11 +13,6 @@
 #define CHALLENGE_FILE "/.typecode/challenge.txt"
 #define MAX_RECORDS 5
 
-typedef struct {
-    int wpm;
-    time_t timestamp;
-} ChallengeRecord;
-
 static const ChallengeRound g_rounds[5] = {
     {1, 20, 10, "Home row"},
     {2, 30, 15, "Mixed letters"},
@@ -54,7 +49,7 @@ static int cmp_record_desc(const void *a, const void *b)
     return rb->wpm - ra->wpm;
 }
 
-static int load_records(ChallengeRecord out[], int max)
+int challenge_load_records(ChallengeRecord out[], int max)
 {
     ensure_history_dir();
     char path[512];
@@ -127,9 +122,9 @@ static int prompt_round_start(const ChallengeRound *rnd)
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(row + 3, col + 3, "Требуемый WPM:  ≥ %d", rnd->min_wpm);
-        mvprintw(row + 4, col + 3, "Время:          %d секунд", rnd->time_sec);
-        mvprintw(row + 6, col + 3, "Enter - начать   Esc - выйти");
+        mvprintw(row + 3, col + 3, "Required WPM:   >= %d", rnd->min_wpm);
+        mvprintw(row + 4, col + 3, "Time:           %d seconds", rnd->time_sec);
+        mvprintw(row + 6, col + 3, "Enter - start   Esc - exit");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
         refresh();
@@ -157,9 +152,9 @@ static int prompt_game_over(int round, int wpm, int required)
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(row + 3, col + 3, "Вылет на раунде %d", round);
-        mvprintw(row + 4, col + 3, "WPM: %d  (нужно было ≥ %d)", wpm, required);
-        mvprintw(row + 6, col + 3, "R - попробовать снова   Q - меню");
+        mvprintw(row + 3, col + 3, "Failed on round %d", round);
+        mvprintw(row + 4, col + 3, "WPM: %d  (needed >= %d)", wpm, required);
+        mvprintw(row + 6, col + 3, "R - retry   Q - menu");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
         refresh();
@@ -183,14 +178,14 @@ static int prompt_final(int last_wpm, int best_wpm, int avg_wpm, const Challenge
         draw_centered_box(row, col, height, width);
 
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
-        mvprintw(row + 1, col + 3, "Speed Challenge - Завершено!");
+        mvprintw(row + 1, col + 3, "Speed Challenge - Complete!");
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(row + 3, col + 3, "Ранг:     %s", rank_for_wpm(last_wpm));
-        mvprintw(row + 4, col + 3, "Лучший WPM за сессию:  %d", best_wpm);
-        mvprintw(row + 5, col + 3, "Средний WPM:           %d", avg_wpm);
-        mvprintw(row + 7, col + 3, "Таблица рекордов:");
+        mvprintw(row + 3, col + 3, "Rank:     %s", rank_for_wpm(last_wpm));
+        mvprintw(row + 4, col + 3, "Best session WPM:  %d", best_wpm);
+        mvprintw(row + 5, col + 3, "Average WPM:       %d", avg_wpm);
+        mvprintw(row + 7, col + 3, "Top Records:");
 
         for (int i = 0; i < count && i < MAX_RECORDS; i++) {
             char date[32];
@@ -200,7 +195,7 @@ static int prompt_final(int last_wpm, int best_wpm, int avg_wpm, const Challenge
             mvprintw(row + 8 + i, col + 3, "%d. %d WPM - %s", i + 1, records[i].wpm, date);
         }
 
-        mvprintw(row + 14, col + 3, "R - ещё раз   Q - меню");
+        mvprintw(row + 14, col + 3, "R - retry   Q - menu");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
         refresh();
@@ -223,7 +218,7 @@ void challenge_run(const AppConfig *cfg)
 {
     (void)cfg;
     ChallengeRecord records[MAX_RECORDS];
-    int count = load_records(records, MAX_RECORDS);
+    int count = challenge_load_records(records, MAX_RECORDS);
 
     while (1) {
         int round_index = 0;
@@ -256,7 +251,7 @@ void challenge_run(const AppConfig *cfg)
         if (round_index == 5) {
             int avg = sums / 5;
             save_record(last_wpm);
-            count = load_records(records, MAX_RECORDS);
+            count = challenge_load_records(records, MAX_RECORDS);
             if (!prompt_final(last_wpm, best_wpm, avg, records, count)) {
                 return;
             }

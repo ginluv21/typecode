@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include "heatmap.h"
 #include "lesson.h"
 #include "settings.h"
@@ -12,13 +13,14 @@
 #include "typecode.h"
 #include "ui.h"
 #include "config.h"
+#include "challenge.h"
 
 #define PAGE_SIZE 10
 #define MARGIN    3
 #define LOAD_MAX  1024
 
-#define NUM_TABS 3
-static const char *tab_names[] = { "Overview", "Heatmap", "Weak Spots" };
+#define NUM_TABS 4
+static const char *tab_names[] = { "Overview", "Heatmap", "Weak Spots", "Challenge" };
 
 static void build_path(char *buf, int size, const char *suffix)
 {
@@ -238,9 +240,42 @@ static void draw_tab0(const SessionResult *sessions, int total,
     }
 }
 
+static void draw_challenge_tab(const ChallengeRecord *records, int count, int y0)
+{
+    int best = 0;
+    int sum = 0;
+    for (int i = 0; i < count; i++) {
+        if (records[i].wpm > best) best = records[i].wpm;
+        sum += records[i].wpm;
+    }
+    int avg = count ? (sum + count / 2) / count : 0;
+
+    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    mvprintw(y0,     MARGIN, "Challenge runs: %d", count);
+    mvprintw(y0 + 1, MARGIN, "Best WPM:       %d", best);
+    mvprintw(y0 + 2, MARGIN, "Average WPM:    %d", avg);
+    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
+    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    mvhline(y0 + 4, 0, ACS_HLINE, COLS);
+    mvprintw(y0 + 5, MARGIN, "%-4s  %-5s  %s", "Pos", "WPM", "Date");
+    mvhline(y0 + 6, MARGIN, ACS_HLINE, COLS - MARGIN * 2);
+    attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+
+    for (int i = 0; i < count && i < 5; i++) {
+        char date[32];
+        struct tm tm_info;
+        localtime_r(&records[i].timestamp, &tm_info);
+        strftime(date, sizeof(date), "%Y-%m-%d", &tm_info);
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        mvprintw(y0 + 7 + i, MARGIN, "%2d.    %4d   %s", i + 1, records[i].wpm, date);
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    }
+}
+
 static void draw_hint(int tab, int total)
 {
-    const char *base = "<-/-> tabs   1-3 jump   q/Esc back";
+    const char *base = "<-/-> tabs   1-4 jump   q/Esc back";
     char hint[128];
     switch (tab) {
         case 0:
@@ -309,10 +344,14 @@ void stats_draw_screen(const AppConfig *cfg)
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
         int y0 = 6;
+        ChallengeRecord challenge_records[10];
+        int challenge_count = challenge_load_records(challenge_records, 10);
+
         switch (tab) {
             case 0: draw_tab0(sessions, total, best_wpm, avg_wpm_10, avg_acc, scroll_overview, y0); break;
             case 1: heatmap_draw_content(&global_heatmap, y0); break;
             case 2: heatmap_weakspots_content(&global_heatmap, y0); break;
+            case 3: draw_challenge_tab(challenge_records, challenge_count, y0); break;
         }
 
         draw_hint(tab, total);
