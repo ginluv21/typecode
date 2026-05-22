@@ -13,7 +13,7 @@ static void setup(void)
 {
     setenv("HOME", TMP_HOME, 1);
     mkdir(TMP_HOME, 0755);
-    mkdir(TMP_HOME "/.typecode", 0755);
+    stats_ensure_dir();
     unlink(TMP_HOME STATS_FILE);
 }
 
@@ -91,20 +91,49 @@ static void test_best_wpm(void)
 
 static void test_avg_wpm(void)
 {
-    // given
     setup();
     SessionResult r1 = {.timestamp=1, .wpm=40, .accuracy=90.0f, .errors=4, .duration_sec=60};
     SessionResult r2 = {.timestamp=2, .wpm=60, .accuracy=95.0f, .errors=2, .duration_sec=60};
     strncpy(r1.lesson, "x", LESSON_MAX - 1);
     strncpy(r2.lesson, "y", LESSON_MAX - 1);
 
-    // when
     stats_save(&r1);
     stats_save(&r2);
     float avg = stats_avg_wpm(10);
 
-    // then
     ASSERT_EQ((int)avg, 50);
+    teardown();
+    TEST_PASS();
+}
+
+static void test_ensure_dir_creates_directory(void)
+{
+    setenv("HOME", TMP_HOME, 1);
+    mkdir(TMP_HOME, 0755);
+    rmdir(TMP_HOME "/.typecode");
+
+    stats_ensure_dir();
+
+    struct stat st;
+    ASSERT_EQ(stat(TMP_HOME "/.typecode", &st), 0);
+    ASSERT_TRUE(S_ISDIR(st.st_mode));
+    rmdir(TMP_HOME "/.typecode");
+    rmdir(TMP_HOME);
+    TEST_PASS();
+}
+
+static void test_reset_clears_stats(void)
+{
+    setup();
+    SessionResult r = {.timestamp=1, .wpm=50, .accuracy=95.0f, .errors=1, .duration_sec=60};
+    strncpy(r.lesson, "x", LESSON_MAX - 1);
+    stats_save(&r);
+
+    stats_reset();
+
+    SessionResult buf[10];
+    int n = stats_load(buf, 10);
+    ASSERT_EQ(n, 0);
     teardown();
     TEST_PASS();
 }
@@ -115,5 +144,7 @@ int main(void)
     test_load_empty();
     test_best_wpm();
     test_avg_wpm();
+    test_ensure_dir_creates_directory();
+    test_reset_clears_stats();
     return 0;
 }
