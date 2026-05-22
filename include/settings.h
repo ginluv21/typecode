@@ -12,6 +12,8 @@ typedef struct {
 void settings_defaults(Settings *s);
 void settings_load(Settings *s);
 void settings_save(const Settings *s);
-void settings_draw_screen(Settings *s);
+#include "config.h"
+
+void settings_draw_screen(Settings *s, AppConfig *cfg);
 
 #endif

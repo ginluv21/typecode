@@ -52,7 +52,7 @@ void settings_load(Settings *s)
 }
 
 // GCOVR_EXCL_START
-void settings_draw_screen(Settings *s)
+void settings_draw_screen(Settings *s, AppConfig *cfg)
 {
     static const char *mode_names[] = {"Normal", "Timed", "Infinite"};
     int sel = 0;
@@ -70,14 +70,16 @@ void settings_draw_screen(Settings *s)
         mvhline(2, 0, ACS_HLINE, COLS);
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-        const char *rows[3];
-        char hc[32], md[32], tl[32];
+        const char *rows[4];
+        char hc[32], md[32], tl[32], vm[32];
         snprintf(hc, sizeof(hc), "Hardcore:    %s", s->hardcore ? "On" : "Off");
         snprintf(md, sizeof(md), "Mode:        %s", mode_names[s->mode]);
         snprintf(tl, sizeof(tl), "Time limit:  %ds", s->time_limit_sec);
-        rows[0] = hc; rows[1] = md; rows[2] = tl;
+        snprintf(vm, sizeof(vm), "Vim mode:    %s", (cfg && cfg->vim_mode) ? "On" : "Off");
+        rows[0] = hc; rows[1] = md; rows[2] = tl; rows[3] = vm;
 
-        int nrows = (s->mode == MODE_TIMED) ? 3 : 2;
+        int base_rows = (s->mode == MODE_TIMED) ? 3 : 2;
+        int nrows = base_rows + 1; /* +1 for Vim mode */
         for (int i = 0; i < nrows; i++) {
             if (i == sel) {
                 attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
@@ -97,12 +99,12 @@ void settings_draw_screen(Settings *s)
 
         int ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
-        if (ch == 27 || ch == 'q' || ch == 'Q') { settings_save(s); return; }
         if (ch == KEY_UP)   sel = (sel - 1 + nrows) % nrows;
         if (ch == KEY_DOWN) sel = (sel + 1) % nrows;
-
-        if (ch == KEY_LEFT || ch == KEY_RIGHT) {
-            int d = (ch == KEY_RIGHT) ? 1 : -1;
+        int left = (ch == KEY_LEFT) || (cfg && cfg->vim_mode && ch == 'h');
+        int right = (ch == KEY_RIGHT) || (cfg && cfg->vim_mode && ch == 'l');
+        if (left || right) {
+            int d = right ? 1 : -1;
             if (sel == 0) {
                 s->hardcore = !s->hardcore;
             } else if (sel == 1) {
@@ -112,8 +114,16 @@ void settings_draw_screen(Settings *s)
                 s->time_limit_sec += d * 15;
                 if (s->time_limit_sec < 15)  s->time_limit_sec = 15;
                 if (s->time_limit_sec > 300) s->time_limit_sec = 300;
+            } else if (sel == 3) {
+                if (cfg) cfg->vim_mode = !cfg->vim_mode;
             }
         }
+        if ((ch == '\n' || ch == KEY_ENTER) && (cfg)) {
+            /* allow toggling Vim mode with Enter when selected */
+            if (sel == 3) cfg->vim_mode = !cfg->vim_mode;
+        }
+        /* save config whenever changed via settings exit */
+        if (ch == 27 || ch == 'q' || ch == 'Q') { if (cfg) config_save(cfg); settings_save(s); return; }
     }
 }
 // GCOVR_EXCL_STOP
