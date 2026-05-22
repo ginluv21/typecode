@@ -6,14 +6,18 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "heatmap.h"
+#include "lesson.h"
+#include "settings.h"
 #include "stats.h"
 #include "typecode.h"
 #include "ui.h"
 
 #define PAGE_SIZE 10
 #define MARGIN    3
+#define LOAD_MAX  1024
 
-#define LOAD_MAX 1024
+#define NUM_TABS 3
+static const char *tab_names[] = { "Overview", "Heatmap", "Weak Spots" };
 
 static void build_path(char *buf, int size, const char *suffix)
 {
@@ -61,6 +65,14 @@ int stats_load(SessionResult *out, int max)
     return count;
 }
 
+void stats_reset(void)
+{
+    char path[512];
+    build_path(path, sizeof(path), STATS_FILE);
+    FILE *f = fopen(path, "w");
+    if (f) fclose(f);
+}
+
 int stats_best_wpm(void)
 {
     SessionResult buf[LOAD_MAX];
@@ -83,6 +95,167 @@ float stats_avg_wpm(int last_n)
 }
 
 // GCOVR_EXCL_START
+
+static int confirm_dialog(const char *line1, const char *line2)
+{
+    int w = 42, h = 6;
+    int r0 = (LINES - h) / 2;
+    int c0 = (COLS  - w) / 2;
+    int sel = 1; // 0 = Yes, 1 = No (default No - safer)
+
+    for (;;) {
+        attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+        mvaddch(r0,         c0,         ACS_ULCORNER);
+        mvhline(r0,         c0 + 1,     ACS_HLINE, w - 2);
+        mvaddch(r0,         c0 + w - 1, ACS_URCORNER);
+        for (int i = 1; i < h - 1; i++) {
+            mvaddch(r0 + i, c0,         ACS_VLINE);
+            mvaddch(r0 + i, c0 + w - 1, ACS_VLINE);
+        }
+        mvaddch(r0 + h - 1, c0,         ACS_LLCORNER);
+        mvhline(r0 + h - 1, c0 + 1,     ACS_HLINE, w - 2);
+        mvaddch(r0 + h - 1, c0 + w - 1, ACS_LRCORNER);
+        attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_BOLD);
+        mvprintw(r0 + 1, c0 + 2, "%s", line1);
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_BOLD);
+
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        mvprintw(r0 + 2, c0 + 2, "%s", line2);
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
+        int yes_attr = (sel == 0)
+            ? COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE
+            : COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD;
+        int no_attr  = (sel == 1)
+            ? COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_BOLD | A_REVERSE
+            : COLOR_PAIR(COLOR_WHITE_ON_BLACK);
+
+        attron(yes_attr);
+        mvprintw(r0 + 4, c0 + 8, "  Yes  ");
+        attroff(yes_attr);
+
+        attron(no_attr);
+        mvprintw(r0 + 4, c0 + 26, "  No   ");
+        attroff(no_attr);
+
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+        mvprintw(r0 + h - 1, c0 + 2, " <-/-> move   Enter confirm   y/n ");
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+
+        refresh();
+
+        int ch = getch();
+        if (ch == 'y' || ch == 'Y')                          return 1;
+        if (ch == 'n' || ch == 'N' || ch == 27)              return 0;
+        if (ch == KEY_LEFT  || ch == KEY_RIGHT)               sel = !sel;
+        if (ch == '\n' || ch == KEY_ENTER)                    return sel == 0;
+    }
+}
+
+static void draw_tab_bar(int active)
+{
+    int total_w = COLS - 2 * MARGIN;
+    int tab_w   = (total_w - (NUM_TABS - 1)) / NUM_TABS;
+    if (tab_w < 4) tab_w = 4;
+
+    for (int i = 0; i < NUM_TABS; i++) {
+        int tab_start = MARGIN + i * (tab_w + 1);
+
+        char label[32];
+        snprintf(label, sizeof(label), "%d %s", i + 1, tab_names[i]);
+        int label_len = (int)strlen(label);
+        int pad = (tab_w - label_len) / 2;
+        if (pad < 0) pad = 0;
+
+        if (i == active) {
+            attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
+        } else {
+            attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+        }
+
+        for (int j = 0; j < tab_w; j++)
+            mvaddch(3, tab_start + j, ' ');
+        mvprintw(3, tab_start + pad, "%s", label);
+
+        if (i == active) {
+            attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
+        } else {
+            attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+        }
+
+        if (i < NUM_TABS - 1) {
+            attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+            mvaddch(3, tab_start + tab_w, ACS_VLINE);
+            attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+        }
+    }
+}
+
+static void draw_tab0(const SessionResult *sessions, int total,
+                      int best_wpm, float avg_wpm_10, float avg_acc,
+                      int scroll, int y0)
+{
+    if (total == 0) {
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        mvprintw(y0, MARGIN, "No stats yet. Complete at least one lesson!");
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        return;
+    }
+
+    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    mvprintw(y0,     MARGIN, "Best WPM:        %d", best_wpm);
+    mvprintw(y0 + 1, MARGIN, "Avg WPM:         %.0f  (last 10)", avg_wpm_10);
+    mvprintw(y0 + 2, MARGIN, "Avg accuracy:    %.1f%%", avg_acc);
+    mvprintw(y0 + 3, MARGIN, "Total sessions:  %d", total);
+    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
+    attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+    mvhline(y0 + 5, 0, ACS_HLINE, COLS);
+    mvprintw(y0 + 6, MARGIN, "%-20s  %4s  %8s  %6s", "Lesson", "WPM", "Accuracy", "Errors");
+    mvhline(y0 + 7, MARGIN, ACS_HLINE, COLS - MARGIN * 2);
+    attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+
+    for (int i = 0; i < PAGE_SIZE; i++) {
+        int idx = total - 1 - scroll - i;
+        if (idx < 0) break;
+        char name[21];
+        strncpy(name, sessions[idx].lesson, 20);
+        name[20] = '\0';
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        mvprintw(y0 + 8 + i, MARGIN, "%-20s  %4d  %7.0f%%  %6d",
+                 name, sessions[idx].wpm, sessions[idx].accuracy, sessions[idx].errors);
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    }
+}
+
+static void draw_hint(int tab, int total)
+{
+    const char *base = "<-/-> tabs   1-3 jump   q/Esc back";
+    char hint[128];
+    switch (tab) {
+        case 0:
+            if (total > PAGE_SIZE)
+                snprintf(hint, sizeof(hint), "%s   up/dn scroll   R reset", base);
+            else
+                snprintf(hint, sizeof(hint), "%s   R reset", base);
+            break;
+        case 1:
+            snprintf(hint, sizeof(hint), "%s   R reset", base);
+            break;
+        case 2:
+            snprintf(hint, sizeof(hint), "%s   G generate exercise", base);
+            break;
+        default:
+            snprintf(hint, sizeof(hint), "%s", base);
+            break;
+    }
+    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+    mvprintw(LINES - 1, MARGIN, "%s", hint);
+    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+}
+
 void stats_draw_screen(void)
 {
     SessionResult sessions[LOAD_MAX];
@@ -90,6 +263,7 @@ void stats_draw_screen(void)
 
     int best_wpm = 0;
     float avg_wpm_10 = 0.0f, avg_acc = 0.0f;
+
     if (total > 0) {
         int from = (total > 10) ? total - 10 : 0;
         float wpm_sum = 0, acc_sum = 0;
@@ -102,8 +276,9 @@ void stats_draw_screen(void)
         avg_acc = acc_sum / total;
     }
 
-    int scroll = 0;
-    int max_scroll = (total > PAGE_SIZE) ? total - PAGE_SIZE : 0;
+    int tab = 0;
+    int scroll_overview = 0;
+    int max_scroll_ov = (total > PAGE_SIZE) ? total - PAGE_SIZE : 0;
 
     for (;;) {
         if (ui_too_small()) {
@@ -119,66 +294,74 @@ void stats_draw_screen(void)
         mvhline(2, 0, ACS_HLINE, COLS);
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-        if (total == 0) {
-            attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-            mvprintw(4, MARGIN, "No stats yet. Complete at least one lesson!");
-            attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        } else {
-            attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-            mvprintw(4, MARGIN, "Best WPM:         %d", best_wpm);
-            mvprintw(5, MARGIN, "Avg WPM:          %.0f  (last 10)", avg_wpm_10);
-            mvprintw(6, MARGIN, "Avg accuracy:     %.1f%%", avg_acc);
-            mvprintw(7, MARGIN, "Total sessions:   %d", total);
-            attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        draw_tab_bar(tab);
 
-            attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-            mvhline(9, 0, ACS_HLINE, COLS);
-            attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+        attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
+        mvhline(4, 0, ACS_HLINE, COLS);
+        attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
-            attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_BOLD);
-            mvprintw(10, MARGIN, "Recent sessions:");
-            attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_BOLD);
-
-            attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-            mvprintw(12, MARGIN, "%-20s  %4s  %8s  %6s", "Lesson", "WPM", "Accuracy", "Errors");
-            mvhline(13, MARGIN, ACS_HLINE, COLS - MARGIN * 2);
-            attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
-
-            for (int i = 0; i < PAGE_SIZE; i++) {
-                int idx = total - 1 - scroll - i;
-                if (idx < 0) break;
-                char name[21];
-                strncpy(name, sessions[idx].lesson, 20);
-                name[20] = '\0';
-                attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-                mvprintw(14 + i, MARGIN, "%-20s  %4d  %7.0f%%  %6d",
-                         name, sessions[idx].wpm, sessions[idx].accuracy, sessions[idx].errors);
-                attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-            }
+        int y0 = 6;
+        switch (tab) {
+            case 0: draw_tab0(sessions, total, best_wpm, avg_wpm_10, avg_acc, scroll_overview, y0); break;
+            case 1: heatmap_draw_content(&global_heatmap, y0); break;
+            case 2: heatmap_weakspots_content(&global_heatmap, y0); break;
         }
 
-        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
-        if (total > PAGE_SIZE)
-            mvprintw(LINES - 1, MARGIN, "Esc / Q - back    H - heatmap    W - weak spots    up/down - scroll");
-        else
-            mvprintw(LINES - 1, MARGIN, "Esc / Q - back    H - heatmap    W - weak spots");
-        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
-
+        draw_hint(tab, total);
         refresh();
 
         int ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
         if (ch == 27 || ch == 'q' || ch == 'Q') break;
-        if (ch == 'h' || ch == 'H') {
-            heatmap_draw_screen(&global_heatmap);
-            continue;
+
+        if (ch == KEY_LEFT)                        tab = (tab + NUM_TABS - 1) % NUM_TABS;
+        if (ch == KEY_RIGHT)                       tab = (tab + 1) % NUM_TABS;
+        if (ch >= '1' && ch <= '0' + NUM_TABS)     tab = ch - '1';
+
+        if (tab == 0) {
+            if (ch == KEY_UP   && scroll_overview > 0)             scroll_overview--;
+            if (ch == KEY_DOWN && scroll_overview < max_scroll_ov) scroll_overview++;
+            if (ch == 'r' || ch == 'R') {
+                if (confirm_dialog("Reset session history?",
+                                   "All recorded sessions will be deleted.")) {
+                    stats_reset();
+                    total = 0;
+                    best_wpm = 0;
+                    avg_wpm_10 = 0.0f;
+                    avg_acc = 0.0f;
+                    scroll_overview = 0;
+                    max_scroll_ov = 0;
+                }
+            }
         }
-        if (ch == 'w' || ch == 'W') {
-            heatmap_draw_weakspots(&global_heatmap);
-            continue;
+        if (tab == 1 && (ch == 'r' || ch == 'R')) {
+            if (confirm_dialog("Reset heatmap statistics?",
+                               "All error counts will be cleared."))
+                heatmap_reset(&global_heatmap);
         }
-        if (ch == KEY_UP   && scroll > 0)          scroll--;
-        if (ch == KEY_DOWN && scroll < max_scroll)  scroll++;
+        if (tab == 2 && (ch == 'g' || ch == 'G')) {
+            char *exercise = heatmap_generate_exercise(&global_heatmap, 5);
+            if (exercise) {
+                lesson_run_text(exercise, "Weak Spots Exercise", 0, MODE_NORMAL, 0);
+                free(exercise);
+                total = stats_load(sessions, LOAD_MAX);
+                best_wpm = 0;
+                avg_wpm_10 = 0.0f;
+                avg_acc = 0.0f;
+                if (total > 0) {
+                    int from = (total > 10) ? total - 10 : 0;
+                    float wpm_sum = 0, acc_sum = 0;
+                    for (int i = from; i < total; i++) wpm_sum += sessions[i].wpm;
+                    avg_wpm_10 = wpm_sum / (total - from);
+                    for (int i = 0; i < total; i++) {
+                        if (sessions[i].wpm > best_wpm) best_wpm = sessions[i].wpm;
+                        acc_sum += sessions[i].accuracy;
+                    }
+                    avg_acc = acc_sum / total;
+                }
+                max_scroll_ov = (total > PAGE_SIZE) ? total - PAGE_SIZE : 0;
+            }
+        }
     }
 }
 // GCOVR_EXCL_STOP

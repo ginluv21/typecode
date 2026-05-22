@@ -17,6 +17,7 @@ typedef struct {
 void  stats_ensure_dir(void);
 void  stats_save(const SessionResult *r);
 int   stats_load(SessionResult *out, int max);
+void  stats_reset(void);
 int   stats_best_wpm(void);
 float stats_avg_wpm(int last_n);
 void  stats_draw_screen(void);

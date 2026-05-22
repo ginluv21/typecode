@@ -223,6 +223,81 @@ char *heatmap_generate_exercise(const Heatmap *h, int top_n)
     return result;
 }
 
+void heatmap_draw_content(const Heatmap *h, int start_row)
+{
+    static const char *rows[] = {
+        "`1234567890-=",
+        "qwertyuiop[]\\",
+        "asdfghjkl;'",
+        "zxcvbnm,./"
+    };
+    static const int indents[] = {0, 2, 4, 6};
+
+    int row = start_row;
+    int base_col = 4;
+
+    for (int r = 0; r < 4; r++) {
+        int x = base_col + indents[r];
+        const char *line = rows[r];
+        for (int j = 0; line[j] != '\0'; j++) {
+            unsigned char key = (unsigned char)line[j];
+            int count = (key < 128) ? h->counts[key] : 0;
+            int color = heatmap_color(count);
+            int bold  = heatmap_bold(count);
+            attr_t attrs = COLOR_PAIR(color) | (bold ? A_BOLD : 0);
+            attron(attrs);
+            mvaddch(row, x,     '[');
+            mvaddch(row, x + 1, (chtype)key);
+            mvaddch(row, x + 2, ']');
+            attroff(attrs);
+            x += 3;
+        }
+        row += 2;
+    }
+
+    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    mvprintw(row + 1, base_col, "Color: green < 3 err.  yellow < 10  red >= 10");
+    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+}
+
+void heatmap_weakspots_content(const Heatmap *h, int start_row)
+{
+    int item_count = 0;
+    int values[128][2];
+    for (int i = 0; i < 128; i++) {
+        if (h->counts[i] > 0) {
+            values[item_count][0] = i;
+            values[item_count][1] = h->counts[i];
+            item_count++;
+        }
+    }
+    if (item_count > 0)
+        qsort(values, item_count, sizeof(values[0]), heatmap_compare);
+
+    int row = start_row;
+    int top = item_count < 10 ? item_count : 10;
+
+    if (top == 0) {
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        mvprintw(row, 4, "  No errors recorded yet.");
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        return;
+    }
+
+    attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_BOLD);
+    mvprintw(row++, 4, "  Top problem symbols:");
+    attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_BOLD);
+    row++;
+
+    for (int i = 0; i < top; i++) {
+        char label[16];
+        heatmap_symbol_label(label, sizeof(label), values[i][0]);
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        mvprintw(row++, 4, "  %d. %-6s  %d errors", i + 1, label, values[i][1]);
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+    }
+}
+
 void heatmap_draw_weakspots(const Heatmap *h)
 {
     int item_count = 0;
@@ -271,7 +346,7 @@ void heatmap_draw_weakspots(const Heatmap *h)
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
         row++;
         mvprintw(row++, 4, "  G - generate exercise");
-        mvprintw(row++, 4, "  Esc - back");
+        mvprintw(row++, 4, "  q/Esc - back");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
         refresh();
@@ -281,7 +356,7 @@ void heatmap_draw_weakspots(const Heatmap *h)
             ui_on_resize();
             continue;
         }
-        if (ch == 27) break;
+        if (ch == 27 || ch == 'q' || ch == 'Q') break;
         if (ch == 'g' || ch == 'G') {
             char *exercise = heatmap_generate_exercise(h, 5);
             if (exercise) {
@@ -344,7 +419,7 @@ void heatmap_draw_screen(const Heatmap *h)
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
         mvprintw(row + 1, base_col, "Color: green < 3 err.  yellow < 10  red >= 10");
-        mvprintw(row + 3, base_col, "R - reset   Esc - back");
+        mvprintw(row + 3, base_col, "R - reset   q/Esc - back");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
         refresh();
@@ -358,6 +433,6 @@ void heatmap_draw_screen(const Heatmap *h)
             heatmap_reset(&global_heatmap);
             continue;
         }
-        if (ch == 27) break;
+        if (ch == 27 || ch == 'q' || ch == 'Q') break;
     }
 }

@@ -76,14 +76,14 @@ const char *language_select_menu(void) {
         }
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(row + h - 2, col + 3, "Enter - select   Esc - back");
+        mvprintw(row + h - 2, col + 3, "Enter - select   q/Esc - back");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
         refresh();
 
         ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
-        if (ch == 27) return NULL;
+        if (ch == 27 || ch == 'q' || ch == 'Q') return NULL;
         if (ch == KEY_UP) selected = (selected - 1 + count) % count;
         if (ch == KEY_DOWN) selected = (selected + 1) % count;
         if (ch == '\n' || ch == KEY_ENTER) return languages[selected];
@@ -174,14 +174,14 @@ int lessons_run_menu(const char *dir, const Settings *s) {
         }
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(LINES - 1, 3, "up/dn - move   Enter - start   Esc - back");
+        mvprintw(LINES - 1, 3, "up/dn - move   Enter - start   q/Esc - back");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
         refresh();
 
         ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
-        if (ch == 27) break;
+        if (ch == 27 || ch == 'q' || ch == 'Q') break;
         if (ch == KEY_UP) selected = (selected - 1 + list->count) % list->count;
         if (ch == KEY_DOWN) selected = (selected + 1) % list->count;
         if (ch == '\n' || ch == KEY_ENTER) {

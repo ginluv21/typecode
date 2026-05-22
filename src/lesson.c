@@ -101,11 +101,11 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
         attroff(COLOR_PAIR(COLOR_RED_ON_BLACK) | A_BOLD);
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(LINES - 1, COLS - 22, "Esc - finish early");
+        mvprintw(LINES - 1, COLS - 22, "q/Esc - finish early");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
     } else {
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(LINES - 1, TEXT_MARGIN, "Esc - finish early");
+        mvprintw(LINES - 1, TEXT_MARGIN, "q/Esc - finish early");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
     }
 
@@ -324,7 +324,7 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
                     else if (states[cursor_pos] == CHAR_WRONG) metrics.errors--;
                     states[cursor_pos] = CHAR_UNTYPED;
                 }
-            } else if (ch == 27) { // Esc - досрочный выход
+            } else if (ch == 27 || ch == 'q' || ch == 'Q') { // досрочный выход
                 break;
             } else if (ch == KEY_RESIZE) {
                 ui_on_resize();

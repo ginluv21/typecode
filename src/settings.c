@@ -91,13 +91,13 @@ void settings_draw_screen(Settings *s)
         }
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
-        mvprintw(LINES - 1, 3, "up/dn move   left/right change   Esc save & exit");
+        mvprintw(LINES - 1, 3, "up/dn move   left/right change   q/Esc save & exit");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
         refresh();
 
         int ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
-        if (ch == 27) { settings_save(s); return; }
+        if (ch == 27 || ch == 'q' || ch == 'Q') { settings_save(s); return; }
         if (ch == KEY_UP)   sel = (sel - 1 + nrows) % nrows;
         if (ch == KEY_DOWN) sel = (sel + 1) % nrows;
 
