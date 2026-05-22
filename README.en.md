@@ -1,10 +1,12 @@
 # typecode
 
+<p align="center">
+  <img src="assets/Logo.png" alt="typecode logo" />
+</p>
+
 [Русский](README.md) | **English**
 
 > A terminal-based typing trainer for programmers. Built in pure C with ncurses.
-
-![typecode](assets/screen_main_menu.png)
 
 ---
 
