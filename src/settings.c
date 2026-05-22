@@ -109,7 +109,7 @@ void settings_draw_screen(Settings *s, AppConfig *cfg)
             } else if (sel == 1) {
                 s->mode = (PracticeMode)(((int)s->mode + d + 3) % 3);
                 if (sel >= nrows) sel = nrows - 1;
-            } else if (sel == 2) {
+            } else if (sel == 2 && s->mode == MODE_TIMED) {
                 s->time_limit_sec += d * 15;
                 if (s->time_limit_sec < 15)  s->time_limit_sec = 15;
                 if (s->time_limit_sec > 300) s->time_limit_sec = 300;
