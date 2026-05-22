@@ -104,6 +104,11 @@ static int confirm_dialog(const char *line1, const char *line2)
     int sel = 1; // 0 = Yes, 1 = No (default No - safer)
 
     for (;;) {
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        for (int i = 0; i < h; i++)
+            mvhline(r0 + i, c0, ' ', w);
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
         mvaddch(r0,         c0,         ACS_ULCORNER);
         mvhline(r0,         c0 + 1,     ACS_HLINE, w - 2);
