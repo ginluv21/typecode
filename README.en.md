@@ -8,8 +8,6 @@
 
 > A terminal-based typing trainer for programmers. Built in pure C with ncurses.
 
-![typecode](assets/screen_main_menu.png)
-
 ---
 
 ## Navigation
