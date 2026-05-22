@@ -49,7 +49,7 @@ coverage: check-deps
 	    -o $(BUILD_DIR)/$$(basename $$f .c) $$f $$(ls src/*.c | grep -v main) -lncurses && \
 	  ./$(BUILD_DIR)/$$(basename $$f .c) || exit 1; \
 	done
-	@python3 -m gcovr --object-directory $(BUILD_DIR) --filter src/settings.c --filter src/stats.c --filter src/lesson.c --print-summary --fail-under-line 60
+	@python3 -m gcovr --object-directory $(BUILD_DIR) --filter src/settings.c --filter src/stats.c --filter src/lesson.c --filter src/lessons.c --print-summary --fail-under-line 60
 	@rm -f $(BUILD_DIR)/*.gcda $(BUILD_DIR)/*.gcno
 
 clean:
