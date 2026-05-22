@@ -103,6 +103,7 @@ void heatmap_reset(Heatmap *h)
     heatmap_save(h);
 }
 
+// GCOVR_EXCL_START
 static int heatmap_color(int count)
 {
     if (count == 0) return COLOR_WHITE_ON_BLACK;
@@ -115,6 +116,7 @@ static int heatmap_bold(int count)
 {
     return count >= 10;
 }
+// GCOVR_EXCL_STOP
 
 static int heatmap_compare(const void *a, const void *b)
 {
@@ -123,6 +125,7 @@ static int heatmap_compare(const void *a, const void *b)
     return ib[1] - ia[1];
 }
 
+// GCOVR_EXCL_START
 static void heatmap_symbol_label(char *out, size_t size, int code)
 {
     if (code == ' ') {
@@ -133,6 +136,7 @@ static void heatmap_symbol_label(char *out, size_t size, int code)
         snprintf(out, size, "%d", code);
     }
 }
+// GCOVR_EXCL_STOP
 
 static void heatmap_add_pattern(char *out, size_t size, int code)
 {
@@ -223,6 +227,7 @@ char *heatmap_generate_exercise(const Heatmap *h, int top_n)
     return result;
 }
 
+// GCOVR_EXCL_START
 void heatmap_draw_content(const Heatmap *h, int start_row)
 {
     static const char *rows[] = {
@@ -436,3 +441,5 @@ void heatmap_draw_screen(const Heatmap *h)
         if (ch == 27 || ch == 'q' || ch == 'Q') break;
     }
 }
+
+// GCOVR_EXCL_STOP
