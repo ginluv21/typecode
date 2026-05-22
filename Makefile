@@ -3,7 +3,7 @@
 BUILD_DIR = build
 OBJ_DIR   = $(BUILD_DIR)/obj
 
-SRC = src/main.c src/lesson.c src/lessons.c src/menu.c src/settings.c src/config.c src/stats.c src/ui.c src/heatmap.c
+SRC = src/main.c src/lesson.c src/lessons.c src/menu.c src/settings.c src/config.c src/challenge.c src/stats.c src/ui.c src/heatmap.c
 OBJ = $(patsubst src/%.c, $(OBJ_DIR)/%.o, $(SRC))
 
 all: check-deps $(BUILD_DIR)/typecode

@@ -12,7 +12,7 @@
 #include "heatmap.h"
 #include "settings.h"
 #include "config.h"
-
+#include "challenge.h"
 #define FILE_PATH_MAX 512
 #define MAX_DISPLAY_LINES 500
 #define WARNING_FILE_SIZE (50 * 1024)
@@ -238,8 +238,8 @@ static void draw_practice_menu(int selected)
     mvprintw(row + 1, col + 3, "Practice");
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
 
-    const char *items[] = {"Load file", "Back"};
-    for (int i = 0; i < 2; i++) {
+    const char *items[] = {"Load file", "Speed Challenge", "Back"};
+    for (int i = 0; i < 3; i++) {
         if (i == selected) {
             attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD | A_REVERSE);
             mvprintw(row + 3 + i, col + 3, " %s", items[i]);
@@ -266,16 +266,16 @@ static int practice_menu(const AppConfig *cfg)
     while ((ch = getch()) != 27) {
         switch (ch) {
             case KEY_UP:
-                selected = (selected - 1 + 2) % 2;
+                selected = (selected - 1 + 3) % 3;
                 break;
             case KEY_DOWN:
-                selected = (selected + 1) % 2;
+                selected = (selected + 1) % 3;
                 break;
             case 'k':
-                if (cfg && cfg->vim_mode) selected = (selected - 1 + 2) % 2;
+                if (cfg && cfg->vim_mode) selected = (selected - 1 + 3) % 3;
                 break;
             case 'j':
-                if (cfg && cfg->vim_mode) selected = (selected + 1) % 2;
+                if (cfg && cfg->vim_mode) selected = (selected + 1) % 3;
                 break;
             case '\n':
             case KEY_ENTER:
@@ -315,8 +315,11 @@ int main(void) // точка входа: инит ncurses, главный цик
                 lessons_run_menu(path, &g_settings, &g_config);
             }
         } else if (choice == MENU_PRACTICE) {
-            if (practice_menu(&g_config) == 0) {
+            int practice_choice = practice_menu(&g_config);
+            if (practice_choice == 0) {
                 practice_load_file(&g_settings, &g_config);
+            } else if (practice_choice == 1) {
+                challenge_run(&g_config);
             }
         } else if (choice == MENU_STATISTICS) {
             stats_draw_screen(&g_config);
