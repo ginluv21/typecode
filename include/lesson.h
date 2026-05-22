@@ -1,6 +1,7 @@
 #ifndef LESSON_H
 #define LESSON_H
 
+#include <limits.h>
 #include <time.h>
 #include "settings.h"
 #include "config.h"
@@ -10,7 +11,9 @@ typedef PracticeMode LessonMode;
 static inline int   metrics_calc_wpm(int correct, double elapsed_sec)
 {
     double mins = elapsed_sec / 60.0;
-    return (mins > 0) ? (int)((correct / 5.0) / mins) : 0;
+    if (mins <= 0) return 0;
+    double wpm = (correct / 5.0) / mins;
+    return (wpm >= (double)INT_MAX) ? INT_MAX : (int)wpm;
 }
 
 static inline float metrics_calc_accuracy(int correct, int errors)
