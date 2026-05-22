@@ -254,9 +254,9 @@ void heatmap_draw_weakspots(const Heatmap *h)
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
         int row = 4;
-        mvprintw(row++, 4, "");
+        row++;
         mvprintw(row++, 4, "  Top problem symbols:");
-        mvprintw(row++, 4, "");
+        row++;
 
         int top = item_count < 10 ? item_count : 10;
         for (int i = 0; i < top; i++) {
@@ -269,7 +269,7 @@ void heatmap_draw_weakspots(const Heatmap *h)
 
         row += 1;
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(row++, 4, "");
+        row++;
         mvprintw(row++, 4, "  G - generate exercise");
         mvprintw(row++, 4, "  Esc - back");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
