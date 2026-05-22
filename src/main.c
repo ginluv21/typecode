@@ -69,7 +69,7 @@ static void show_message_box(const char *title, const char *line1, const char *l
     }
 }
 
-static int prompt_yes_no(const char *message, int default_yes)
+static int prompt_yes_no(const AppConfig *cfg, const char *message, int default_yes)
 {
     int width = 64;
     int height = 9;
@@ -94,6 +94,10 @@ static int prompt_yes_no(const char *message, int default_yes)
         if (ch == 'n' || ch == 'N') return 0;
         if (ch == '\n' || ch == KEY_ENTER) return default_yes;
         if (ch == 27) return 0;
+        if (cfg && cfg->vim_mode) {
+            if (ch == 'h') return 0; /* treat as left/no */
+            if (ch == 'l') return 1; /* treat as right/yes */
+        }
     }
 }
 
@@ -151,7 +155,7 @@ static char *create_truncated_temp_file(const char *path)
     return strdup(template);
 }
 
-static void practice_load_file(const Settings *s)
+static void practice_load_file(const Settings *s, const AppConfig *cfg)
 {
     char path[FILE_PATH_MAX];
 
@@ -184,7 +188,7 @@ static void practice_load_file(const Settings *s)
         }
 
         if (size > WARNING_FILE_SIZE) {
-            if (!prompt_yes_no("Файл больше 50 КБ. Продолжить?", 1)) {
+            if (!prompt_yes_no(cfg, "Файл больше 50 КБ. Продолжить?", 1)) {
                 fclose(file);
                 continue;
             }
@@ -201,7 +205,7 @@ static void practice_load_file(const Settings *s)
         if (line_count > MAX_DISPLAY_LINES) {
             char prompt[128];
             snprintf(prompt, sizeof(prompt), "Файл большой (%d строк). Загрузить первые %d?", line_count, MAX_DISPLAY_LINES);
-            if (!prompt_yes_no(prompt, 1))
+            if (!prompt_yes_no(cfg, prompt, 1))
                 continue;
 
             char *temp_path = create_truncated_temp_file(path);
@@ -253,7 +257,7 @@ static void draw_practice_menu(int selected)
     refresh();
 }
 
-static int practice_menu(void)
+static int practice_menu(const AppConfig *cfg)
 {
     int selected = 0;
     draw_practice_menu(selected);
@@ -266,6 +270,12 @@ static int practice_menu(void)
                 break;
             case KEY_DOWN:
                 selected = (selected + 1) % 2;
+                break;
+            case 'k':
+                if (cfg && cfg->vim_mode) selected = (selected - 1 + 2) % 2;
+                break;
+            case 'j':
+                if (cfg && cfg->vim_mode) selected = (selected + 1) % 2;
                 break;
             case '\n':
             case KEY_ENTER:
@@ -296,20 +306,20 @@ int main(void) // точка входа: инит ncurses, главный цик
     do {
         choice = menu_run(&g_config);
         if (choice == MENU_LESSONS) {
-            lesson_select_menu("lessons/latin", &g_settings);
+            lesson_select_menu("lessons/latin", &g_settings, &g_config);
         } else if (choice == MENU_LANGUAGES) {
-            const char *lang = language_select_menu();
+            const char *lang = language_select_menu(&g_config);
             if (lang) {
                 char path[64];
                 snprintf(path, sizeof(path), "lessons/%s", lang);
-                lessons_run_menu(path, &g_settings);
+                lessons_run_menu(path, &g_settings, &g_config);
             }
         } else if (choice == MENU_PRACTICE) {
-            if (practice_menu() == 0) {
-                practice_load_file(&g_settings);
+            if (practice_menu(&g_config) == 0) {
+                practice_load_file(&g_settings, &g_config);
             }
         } else if (choice == MENU_STATISTICS) {
-            stats_draw_screen();
+            stats_draw_screen(&g_config);
         } else if (choice == MENU_SETTINGS) {
             settings_draw_screen(&g_settings, &g_config);
         }

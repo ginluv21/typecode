@@ -3,6 +3,7 @@
 
 #include <time.h>
 #include "settings.h"
+#include "config.h"
 
 typedef PracticeMode LessonMode;
 
@@ -68,12 +69,12 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name);
 ResultAction lesson_run(const char *path, const Settings *s);
 ResultAction lesson_run_with_name(const char *path, const char *display_name, const Settings *s);
 void         lesson_run_text(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit);
-void         lesson_select_menu(const char *dir, const Settings *s);
+void         lesson_select_menu(const char *dir, const Settings *s, const AppConfig *cfg);
 
 LessonList  *lessons_scan(const char *dir);
 void         lessons_free(LessonList *list);
-int          lessons_run_menu(const char *dir, const Settings *s);
-const char  *language_select_menu(void);
+int          lessons_run_menu(const char *dir, const Settings *s, const AppConfig *cfg);
+const char  *language_select_menu(const AppConfig *cfg);
 
 
 #endif
