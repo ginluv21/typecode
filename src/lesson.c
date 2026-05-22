@@ -471,8 +471,8 @@ void lesson_run_text(const char *text, const char *name, int hardcore, LessonMod
     lesson_run_internal(lesson, &s);
 }
 
-void lesson_select_menu(const char *dir, const Settings *s)
+void lesson_select_menu(const char *dir, const Settings *s, const AppConfig *cfg)
 {
-    lessons_run_menu(dir, s);
+    lessons_run_menu(dir, s, cfg);
 }
 // GCOVR_EXCL_STOP

@@ -11,6 +11,7 @@
 #include "stats.h"
 #include "typecode.h"
 #include "ui.h"
+#include "config.h"
 
 #define PAGE_SIZE 10
 #define MARGIN    3
@@ -96,7 +97,7 @@ float stats_avg_wpm(int last_n)
 
 // GCOVR_EXCL_START
 
-static int confirm_dialog(const char *line1, const char *line2)
+static int confirm_dialog(const AppConfig *cfg, const char *line1, const char *line2)
 {
     int w = 42, h = 6;
     int r0 = (LINES - h) / 2;
@@ -154,7 +155,9 @@ static int confirm_dialog(const char *line1, const char *line2)
         int ch = getch();
         if (ch == 'y' || ch == 'Y')                          return 1;
         if (ch == 'n' || ch == 'N' || ch == 27)              return 0;
-        if (ch == KEY_LEFT  || ch == KEY_RIGHT)               sel = !sel;
+        int left = (ch == KEY_LEFT) || (cfg && cfg->vim_mode && ch == 'h');
+        int right = (ch == KEY_RIGHT) || (cfg && cfg->vim_mode && ch == 'l');
+        if (left || right)               sel = !sel;
         if (ch == '\n' || ch == KEY_ENTER)                    return sel == 0;
     }
 }
@@ -261,7 +264,7 @@ static void draw_hint(int tab, int total)
     attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
 }
 
-void stats_draw_screen(void)
+void stats_draw_screen(const AppConfig *cfg)
 {
     SessionResult sessions[LOAD_MAX];
     int total = stats_load(sessions, LOAD_MAX);
@@ -318,17 +321,18 @@ void stats_draw_screen(void)
         int ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
         if (ch == 27 || ch == 'q' || ch == 'Q') break;
-
-        if (ch == KEY_LEFT)                        tab = (tab + NUM_TABS - 1) % NUM_TABS;
-        if (ch == KEY_RIGHT)                       tab = (tab + 1) % NUM_TABS;
+        int left = (ch == KEY_LEFT) || (cfg && cfg->vim_mode && ch == 'h');
+        int right = (ch == KEY_RIGHT) || (cfg && cfg->vim_mode && ch == 'l');
+        if (left)                        tab = (tab + NUM_TABS - 1) % NUM_TABS;
+        if (right)                       tab = (tab + 1) % NUM_TABS;
         if (ch >= '1' && ch <= '0' + NUM_TABS)     tab = ch - '1';
 
         if (tab == 0) {
-            if (ch == KEY_UP   && scroll_overview > 0)             scroll_overview--;
-            if (ch == KEY_DOWN && scroll_overview < max_scroll_ov) scroll_overview++;
+            if ((ch == KEY_UP || (cfg && cfg->vim_mode && ch == 'k'))   && scroll_overview > 0)             scroll_overview--;
+            if ((ch == KEY_DOWN || (cfg && cfg->vim_mode && ch == 'j')) && scroll_overview < max_scroll_ov) scroll_overview++;
             if (ch == 'r' || ch == 'R') {
-                if (confirm_dialog("Reset session history?",
-                                   "All recorded sessions will be deleted.")) {
+                if (confirm_dialog(cfg, "Reset session history?",
+                                       "All recorded sessions will be deleted.")) {
                     stats_reset();
                     total = 0;
                     best_wpm = 0;
@@ -340,7 +344,7 @@ void stats_draw_screen(void)
             }
         }
         if (tab == 1 && (ch == 'r' || ch == 'R')) {
-            if (confirm_dialog("Reset heatmap statistics?",
+            if (confirm_dialog(cfg, "Reset heatmap statistics?",
                                "All error counts will be cleared."))
                 heatmap_reset(&global_heatmap);
         }

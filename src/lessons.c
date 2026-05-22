@@ -24,7 +24,7 @@ static const char *language_labels[] = {
     "Go",
 };
 
-const char *language_select_menu(void) {
+const char *language_select_menu(const AppConfig *cfg) {
     int count = sizeof(languages) / sizeof(languages[0]);
     int selected = 0;
     int ch;
@@ -84,8 +84,8 @@ const char *language_select_menu(void) {
         ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
         if (ch == 27 || ch == 'q' || ch == 'Q') return NULL;
-        if (ch == KEY_UP) selected = (selected - 1 + count) % count;
-        if (ch == KEY_DOWN) selected = (selected + 1) % count;
+        if (ch == KEY_UP || (cfg && cfg->vim_mode && ch == 'k')) selected = (selected - 1 + count) % count;
+        if (ch == KEY_DOWN || (cfg && cfg->vim_mode && ch == 'j')) selected = (selected + 1) % count;
         if (ch == '\n' || ch == KEY_ENTER) return languages[selected];
         if (ch >= '1' && ch <= '0' + count) return languages[ch - '1'];
     }
@@ -140,7 +140,7 @@ void lessons_free(LessonList *list) {
     free(list);
 }
 
-int lessons_run_menu(const char *dir, const Settings *s) {
+int lessons_run_menu(const char *dir, const Settings *s, const AppConfig *cfg) {
     LessonList *list = lessons_scan(dir);
     if (!list) return 0;
 
@@ -182,8 +182,8 @@ int lessons_run_menu(const char *dir, const Settings *s) {
         ch = getch();
         if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
         if (ch == 27 || ch == 'q' || ch == 'Q') break;
-        if (ch == KEY_UP) selected = (selected - 1 + list->count) % list->count;
-        if (ch == KEY_DOWN) selected = (selected + 1) % list->count;
+        if (ch == KEY_UP || (cfg && cfg->vim_mode && ch == 'k')) selected = (selected - 1 + list->count) % list->count;
+        if (ch == KEY_DOWN || (cfg && cfg->vim_mode && ch == 'j')) selected = (selected + 1) % list->count;
         if (ch == '\n' || ch == KEY_ENTER) {
             ResultAction a = lesson_run(list->entries[selected].path, s);
             if (a == RESULT_MAIN_MENU) break;

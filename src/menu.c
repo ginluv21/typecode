@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <string.h>
 #include "menu.h"
+#include "config.h"
 #include "typecode.h"
 #include "ui.h"
 
@@ -114,12 +115,12 @@ void draw_main_menu(int selected) // рисует рамку с лого и пу
     refresh();
 }
 
-MenuOption menu_run(void) // цикл ввода главного меню, возвращает выбранный пункт MenuOption
+MenuOption menu_run(const AppConfig *cfg) // цикл ввода главного меню, возвращает выбранный пункт MenuOption
 {
     int selected = 0;
     draw_main_menu(selected);
-
     int ch;
+    static int last_key = 0;
     while (1) {
         ch = getch();
         switch (ch) {
@@ -133,6 +134,22 @@ MenuOption menu_run(void) // цикл ввода главного меню, во
             case KEY_DOWN:
                 selected = (selected + 1) % MENU_ITEMS;
                 break;
+            case 'k':
+                if (cfg && cfg->vim_mode)
+                    selected = (selected - 1 + MENU_ITEMS) % MENU_ITEMS;
+                break;
+            case 'j':
+                if (cfg && cfg->vim_mode)
+                    selected = (selected + 1) % MENU_ITEMS;
+                break;
+            case 'g':
+                if (cfg && cfg->vim_mode && last_key == 'g') {
+                    selected = 0;
+                }
+                break;
+            case 'G':
+                if (cfg && cfg->vim_mode) selected = MENU_ITEMS - 1;
+                break;
             case '\n':
             case KEY_ENTER:
                 return (MenuOption)selected;
@@ -143,8 +160,10 @@ MenuOption menu_run(void) // цикл ввода главного меню, во
                 ui_on_resize();
                 if (ui_too_small()) continue;
                 draw_main_menu(selected);
+                last_key = 0;
                 continue;
         }
+        last_key = ch;
         draw_main_menu(selected);
     }
 }
