@@ -86,6 +86,27 @@ void lesson_draw(const Lesson *lesson, int cursor_pos,
     mvhline(2, 0, ACS_HLINE, COLS);
     attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK));
 
+    // строка аннотации спецсимволов
+    {
+        int has_newline = 0, has_tab = 0;
+        for (int i = 0; i < lesson->len; i++) {
+            if (lesson->text[i] == '\n') has_newline = 1;
+            if (lesson->text[i] == '\t') has_tab = 1;
+        }
+        if (has_newline || has_tab) {
+            attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+            int x = TEXT_MARGIN;
+            if (has_newline) {
+                mvprintw(LINES - 2, x, "$ Enter");
+                x += 10;
+            }
+            if (has_tab) {
+                mvprintw(LINES - 2, x, "> Tab");
+            }
+            attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK) | A_DIM);
+        }
+    }
+
     // строка метрик внизу
     if (metrics && metrics->started) {
         attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
