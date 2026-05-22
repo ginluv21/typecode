@@ -1,5 +1,9 @@
 # typecode
 
+<p align="center">
+  <img src="assets/Logo.png" alt="typecode logo" />
+</p>
+
 **Русский** | [English](README.en.md)
 
 > Тренажёр слепой печати для программистов прямо в терминале. Написан на чистом C с использованием ncurses.
