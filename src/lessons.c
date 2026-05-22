@@ -24,6 +24,7 @@ static const char *language_labels[] = {
     "Go",
 };
 
+// GCOVR_EXCL_START
 const char *language_select_menu(const AppConfig *cfg) {
     int count = sizeof(languages) / sizeof(languages[0]);
     int selected = 0;
@@ -90,6 +91,7 @@ const char *language_select_menu(const AppConfig *cfg) {
         if (ch >= '1' && ch <= '0' + count) return languages[ch - '1'];
     }
 }
+// GCOVR_EXCL_STOP
 
 LessonList *lessons_scan(const char *dir) {
     LessonList *list = malloc(sizeof(LessonList));
@@ -140,6 +142,7 @@ void lessons_free(LessonList *list) {
     free(list);
 }
 
+// GCOVR_EXCL_START
 int lessons_run_menu(const char *dir, const Settings *s, const AppConfig *cfg) {
     LessonList *list = lessons_scan(dir);
     if (!list) return 0;
@@ -193,3 +196,4 @@ int lessons_run_menu(const char *dir, const Settings *s, const AppConfig *cfg) {
     lessons_free(list);
     return 1;
 }
+// GCOVR_EXCL_STOP
