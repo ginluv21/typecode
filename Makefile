@@ -53,6 +53,7 @@ coverage: check-deps
 	  --filter src/lesson.c --filter src/lessons.c \
 	  --filter src/settings.c --filter src/stats.c \
 	  --filter src/config.c --filter src/heatmap.c \
+	  --filter src/challenge.c \
 	  --print-summary --fail-under-line 60
 	@rm -f $(BUILD_DIR)/*.gcda $(BUILD_DIR)/*.gcno
 

@@ -11,22 +11,33 @@
 #include "typecode.h"
 
 #define CHALLENGE_FILE "/.typecode/challenge.txt"
-#define MAX_RECORDS 5
+#define MAX_RECORDS    5
+#define CHALLENGE_ROUNDS 10
 
-static const ChallengeRound g_rounds[5] = {
-    {1, 20, 10, "Home row"},
-    {2, 30, 15, "Mixed letters"},
-    {3, 40, 20, "Punctuation"},
-    {4, 50, 25, "Code"},
-    {5, 60, 30, "Full text"},
+static const ChallengeRound g_rounds[CHALLENGE_ROUNDS] = {
+    { 1, 15, 15, "Home row"},
+    { 2, 20, 18, "Home row words"},
+    { 3, 25, 20, "All letters"},
+    { 4, 30, 22, "Punctuation"},
+    { 5, 35, 25, "Numbers"},
+    { 6, 38, 25, "Symbols"},
+    { 7, 42, 28, "Simple code"},
+    { 8, 46, 30, "Conditions"},
+    { 9, 50, 33, "Loops"},
+    {10, 55, 35, "Full function"},
 };
 
-static const char *g_round_texts[5] = {
-    "asdf jkl; asdf jkl; asdf jkl; asdf jkl; asdf jkl; asdf jkl;",
-    "qwe asd zxc poi lkj mnb rfg tnh yuj ik, ol.; p?",
-    "Hello, world! This is a speed challenge: type fast, type clean.",
+static const char *g_round_texts[CHALLENGE_ROUNDS] = {
+    "asdf jkl; asdf jkl; asdf jkl; asdf jkl; asdf jkl;",
+    "add fall glad flask shall lass had flag all glass",
+    "the quick brown fox jumps over the lazy dog",
+    "Hello, world. Type fast, be clean. Good job!",
+    "pin 1234, code 5678, id 90, score: 42, rank 7",
+    "(a + b) * c; {x = y}; [0, 1, 2]; val = true;",
+    "int x = 10; float y = 3.14; char c = 'A';",
+    "if (x > 0) { return x; } else { return -x; }",
     "for (int i = 0; i < 10; i++) { printf(\"%d\\n\", i); }",
-    "The quick brown fox jumps over the lazy dog. Speed and accuracy matter."
+    "void run(int n) { while (n-- > 0) { printf(\"ok %d\\n\", n); } }",
 };
 
 static void build_path(char *buf, size_t size, const char *suffix)
@@ -111,7 +122,7 @@ static void draw_centered_box(int row, int col, int height, int width)
 static int prompt_round_start(const ChallengeRound *rnd)
 {
     int width = 40;
-    int height = 9;
+    int height = 10;
     int row = (LINES - height) / 2;
     int col = (COLS - width) / 2;
 
@@ -120,13 +131,14 @@ static int prompt_round_start(const ChallengeRound *rnd)
         draw_centered_box(row, col, height, width);
 
         attron(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
-        mvprintw(row + 1, col + 3, "Speed Challenge - Round %d of 5", rnd->round);
+        mvprintw(row + 1, col + 3, "Speed Challenge - Round %d of %d", rnd->round, CHALLENGE_ROUNDS);
         attroff(COLOR_PAIR(COLOR_CYAN_ON_BLACK) | A_BOLD);
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
-        mvprintw(row + 3, col + 3, "Required WPM:   >= %d", rnd->min_wpm);
-        mvprintw(row + 4, col + 3, "Time:           %d seconds", rnd->time_sec);
-        mvprintw(row + 6, col + 3, "Enter - start   Esc - exit");
+        mvprintw(row + 3, col + 3, "Theme:          %s", rnd->lesson_path);
+        mvprintw(row + 4, col + 3, "Required WPM:   >= %d", rnd->min_wpm);
+        mvprintw(row + 5, col + 3, "Time:           %d seconds", rnd->time_sec);
+        mvprintw(row + 7, col + 3, "Enter - start   Esc - exit");
         attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
 
         refresh();
@@ -226,7 +238,7 @@ static int prompt_round_passed(int round, int wpm)
 
         attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
         mvprintw(row + 3, col + 3, "WPM: %d", wpm);
-        if (round < 5)
+        if (round < CHALLENGE_ROUNDS)
             mvprintw(row + 6, col + 3, "Enter - next round   Esc - exit");
         else
             mvprintw(row + 6, col + 3, "Enter - results      Esc - exit");
@@ -243,7 +255,7 @@ static int prompt_round_passed(int round, int wpm)
 
 static int play_round(int index)
 {
-    if (index < 0 || index >= 5) return 0;
+    if (index < 0 || index >= CHALLENGE_ROUNDS) return 0;
     const ChallengeRound *rnd = &g_rounds[index];
     return lesson_run_challenge_round(g_round_texts[index], rnd->time_sec);
 }
@@ -261,7 +273,7 @@ void challenge_run(const AppConfig *cfg)
         int best_wpm = 0;
         int success = 1;
 
-        for (; round_index < 5; round_index++) {
+        for (; round_index < CHALLENGE_ROUNDS; round_index++) {
             const ChallengeRound *rnd = &g_rounds[round_index];
             if (!prompt_round_start(rnd)) {
                 return;
@@ -287,8 +299,8 @@ void challenge_run(const AppConfig *cfg)
 
         if (!success) continue;
 
-        if (round_index == 5) {
-            int avg = sums / 5;
+        if (round_index == CHALLENGE_ROUNDS) {
+            int avg = sums / CHALLENGE_ROUNDS;
             save_record(best_wpm);
             count = challenge_load_records(records, MAX_RECORDS);
             if (!prompt_final(last_wpm, best_wpm, avg, records, count)) {
