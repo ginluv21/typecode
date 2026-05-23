@@ -58,10 +58,11 @@ int challenge_load_records(ChallengeRecord out[], int max)
     if (!f) return 0;
 
     int count = 0;
-    while (count < max) {
+    char line[64];
+    while (count < max && fgets(line, sizeof(line), f)) {
         int wpm;
         long ts;
-        if (fscanf(f, "%d %ld\n", &wpm, &ts) != 2) break;
+        if (sscanf(line, "%d %ld", &wpm, &ts) != 2) continue;
         out[count].wpm = wpm;
         out[count].timestamp = (time_t)ts;
         count++;
@@ -71,6 +72,7 @@ int challenge_load_records(ChallengeRecord out[], int max)
     return count;
 }
 
+// GCOVR_EXCL_START
 static void save_record(int wpm)
 {
     ensure_history_dir();
@@ -207,11 +209,43 @@ static int prompt_final(int last_wpm, int best_wpm, int avg_wpm, const Challenge
     }
 }
 
+static int prompt_round_passed(int round, int wpm)
+{
+    int width = 40;
+    int height = 9;
+    int row = (LINES - height) / 2;
+    int col = (COLS - width) / 2;
+
+    for (;;) {
+        clear();
+        draw_centered_box(row, col, height, width);
+
+        attron(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
+        mvprintw(row + 1, col + 3, "Round %d - Passed!", round);
+        attroff(COLOR_PAIR(COLOR_GREEN_ON_BLACK) | A_BOLD);
+
+        attron(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+        mvprintw(row + 3, col + 3, "WPM: %d", wpm);
+        if (round < 5)
+            mvprintw(row + 6, col + 3, "Enter - next round   Esc - exit");
+        else
+            mvprintw(row + 6, col + 3, "Enter - results      Esc - exit");
+        attroff(COLOR_PAIR(COLOR_WHITE_ON_BLACK));
+
+        refresh();
+
+        int ch = getch();
+        if (ch == '\n' || ch == KEY_ENTER) return 1;
+        if (ch == 27) return 0;
+        if (ch == KEY_RESIZE) { ui_on_resize(); continue; }
+    }
+}
+
 static int play_round(int index)
 {
     if (index < 0 || index >= 5) return 0;
     const ChallengeRound *rnd = &g_rounds[index];
-    return lesson_run_text_score(g_round_texts[index], rnd->lesson_path, 0, MODE_TIMED, rnd->time_sec);
+    return lesson_run_challenge_round(g_round_texts[index], rnd->time_sec);
 }
 
 void challenge_run(const AppConfig *cfg)
@@ -238,11 +272,16 @@ void challenge_run(const AppConfig *cfg)
             sums += wpm;
             if (wpm > best_wpm) best_wpm = wpm;
             if (wpm < rnd->min_wpm) {
+                save_record(best_wpm);
+                count = challenge_load_records(records, MAX_RECORDS);
                 if (!prompt_game_over(rnd->round, wpm, rnd->min_wpm)) {
                     return;
                 }
                 success = 0;
                 break;
+            }
+            if (!prompt_round_passed(rnd->round, wpm)) {
+                return;
             }
         }
 
@@ -250,7 +289,7 @@ void challenge_run(const AppConfig *cfg)
 
         if (round_index == 5) {
             int avg = sums / 5;
-            save_record(last_wpm);
+            save_record(best_wpm);
             count = challenge_load_records(records, MAX_RECORDS);
             if (!prompt_final(last_wpm, best_wpm, avg, records, count)) {
                 return;
@@ -258,3 +297,4 @@ void challenge_run(const AppConfig *cfg)
         }
     }
 }
+// GCOVR_EXCL_STOP

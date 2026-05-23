@@ -319,7 +319,7 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
 
 static Metrics g_last_metrics = {0};
 
-static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
+static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s, int show_results)
 {
     CharState *states = calloc(lesson->len, sizeof(CharState));
     if (!states) { lesson_free(lesson); return RESULT_LESSONS; }
@@ -427,6 +427,10 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
         metrics.duration_sec = metrics.started ? (int)elapsed_sec(&metrics) : 0;
         g_last_metrics = metrics;
         heatmap_save(&global_heatmap);
+        if (!show_results) {
+            action = RESULT_LESSONS;
+            break;
+        }
         action = lesson_show_results(&metrics, lesson->name);
         if (action != RESULT_REPEAT) {
             SessionResult r = {
@@ -452,7 +456,7 @@ ResultAction lesson_run(const char *path, const Settings *s)
 {
     Lesson *lesson = lesson_load(path);
     if (!lesson) return RESULT_LESSONS;
-    return lesson_run_internal(lesson, s);
+    return lesson_run_internal(lesson, s, 1);
 }
 
 ResultAction lesson_run_with_name(const char *path, const char *display_name, const Settings *s)
@@ -465,7 +469,7 @@ ResultAction lesson_run_with_name(const char *path, const char *display_name, co
         lesson->name[LESSON_NAME_MAX - 1] = '\0';
     }
 
-    return lesson_run_internal(lesson, s);
+    return lesson_run_internal(lesson, s, 1);
 }
 
 int lesson_run_text_score(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit)
@@ -498,7 +502,31 @@ int lesson_run_text_score(const char *text, const char *name, int hardcore, Less
         .time_limit_sec = time_limit,
     };
 
-    lesson_run_internal(lesson, &s);
+    lesson_run_internal(lesson, &s, 1);
+    return g_last_metrics.wpm;
+}
+
+int lesson_run_challenge_round(const char *text, int time_sec)
+{
+    if (!text) return 0;
+    g_last_metrics = (Metrics){0};
+
+    Lesson *lesson = malloc(sizeof(Lesson));
+    if (!lesson) return 0;
+
+    lesson->len = (int)strlen(text);
+    lesson->text = malloc(lesson->len + 1);
+    if (!lesson->text) { free(lesson); return 0; }
+    memcpy(lesson->text, text, lesson->len + 1);
+    lesson->name[0] = '\0';
+
+    Settings s = {
+        .hardcore = 0,
+        .mode = MODE_TIMED,
+        .time_limit_sec = time_sec,
+    };
+
+    lesson_run_internal(lesson, &s, 0);
     return g_last_metrics.wpm;
 }
 
