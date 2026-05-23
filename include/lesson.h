@@ -74,6 +74,8 @@ void         lesson_draw(const Lesson *lesson, int cursor_pos,
 ResultAction lesson_show_results(const Metrics *metrics, const char *name);
 ResultAction lesson_run(const char *path, const Settings *s);
 ResultAction lesson_run_with_name(const char *path, const char *display_name, const Settings *s);
+int          lesson_run_text_score(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit);
+int          lesson_run_challenge_round(const char *text, int time_sec);
 void         lesson_run_text(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit);
 void         lesson_select_menu(const char *dir, const Settings *s, const AppConfig *cfg);
 

@@ -317,7 +317,9 @@ ResultAction lesson_show_results(const Metrics *metrics, const char *name) // п
     return RESULT_LESSONS;
 }
 
-static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
+static Metrics g_last_metrics = {0};
+
+static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s, int show_results)
 {
     CharState *states = calloc(lesson->len, sizeof(CharState));
     if (!states) { lesson_free(lesson); return RESULT_LESSONS; }
@@ -336,8 +338,31 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
             refresh();
         }
 
-        int ch;
-        while ((ch = getch()) != ERR) {
+        /* allow getch to time out briefly so we can update timer even when
+           no key is pressed; restore blocking mode after the input loop */
+        timeout(100); /* wait up to 100ms for input */
+
+        if (s->mode == MODE_TIMED) {
+            clock_gettime(CLOCK_MONOTONIC, &metrics.start);
+            metrics.started = 1;
+        }
+
+        for (;;) {
+            int ch = getch();
+
+            if (ch == ERR) {
+                /* no input this tick - update timer display if timed */
+                if (s->mode == MODE_TIMED && metrics.started) {
+                    int remaining = s->time_limit_sec - (int)elapsed_sec(&metrics);
+                    if (remaining <= 0) break;
+                    attron(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
+                    mvprintw(LINES - 1, COLS - 30, "[%3ds]", remaining);
+                    attroff(COLOR_PAIR(COLOR_YELLOW_ON_BLACK) | A_BOLD);
+                    refresh();
+                }
+                continue;
+            }
+
             if ((ch == KEY_BACKSPACE || ch == 127 || ch == '\b') && !s->hardcore) {
                 if (cursor_pos > 0) {
                     cursor_pos--;
@@ -394,11 +419,18 @@ static ResultAction lesson_run_internal(Lesson *lesson, const Settings *s)
                 refresh();
             }
         }
+        /* restore blocking getch for other screens */
+        timeout(-1);
 
         if (!metrics.started) break; // ни одной клавиши не нажато - выйти без результатов
 
         metrics.duration_sec = metrics.started ? (int)elapsed_sec(&metrics) : 0;
+        g_last_metrics = metrics;
         heatmap_save(&global_heatmap);
+        if (!show_results) {
+            action = RESULT_LESSONS;
+            break;
+        }
         action = lesson_show_results(&metrics, lesson->name);
         if (action != RESULT_REPEAT) {
             SessionResult r = {
@@ -424,7 +456,7 @@ ResultAction lesson_run(const char *path, const Settings *s)
 {
     Lesson *lesson = lesson_load(path);
     if (!lesson) return RESULT_LESSONS;
-    return lesson_run_internal(lesson, s);
+    return lesson_run_internal(lesson, s, 1);
 }
 
 ResultAction lesson_run_with_name(const char *path, const char *display_name, const Settings *s)
@@ -437,21 +469,23 @@ ResultAction lesson_run_with_name(const char *path, const char *display_name, co
         lesson->name[LESSON_NAME_MAX - 1] = '\0';
     }
 
-    return lesson_run_internal(lesson, s);
+    return lesson_run_internal(lesson, s, 1);
 }
 
-void lesson_run_text(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit)
+int lesson_run_text_score(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit)
 {
-    if (!text) return;
+    if (!text) return 0;
+
+    g_last_metrics = (Metrics){0};
 
     Lesson *lesson = malloc(sizeof(Lesson));
-    if (!lesson) return;
+    if (!lesson) return 0;
 
     lesson->len = (int)strlen(text);
     lesson->text = malloc(lesson->len + 1);
     if (!lesson->text) {
         free(lesson);
-        return;
+        return 0;
     }
     memcpy(lesson->text, text, lesson->len + 1);
 
@@ -468,7 +502,37 @@ void lesson_run_text(const char *text, const char *name, int hardcore, LessonMod
         .time_limit_sec = time_limit,
     };
 
-    lesson_run_internal(lesson, &s);
+    lesson_run_internal(lesson, &s, 1);
+    return g_last_metrics.wpm;
+}
+
+int lesson_run_challenge_round(const char *text, int time_sec)
+{
+    if (!text) return 0;
+    g_last_metrics = (Metrics){0};
+
+    Lesson *lesson = malloc(sizeof(Lesson));
+    if (!lesson) return 0;
+
+    lesson->len = (int)strlen(text);
+    lesson->text = malloc(lesson->len + 1);
+    if (!lesson->text) { free(lesson); return 0; }
+    memcpy(lesson->text, text, lesson->len + 1);
+    lesson->name[0] = '\0';
+
+    Settings s = {
+        .hardcore = 0,
+        .mode = MODE_TIMED,
+        .time_limit_sec = time_sec,
+    };
+
+    lesson_run_internal(lesson, &s, 0);
+    return g_last_metrics.wpm;
+}
+
+void lesson_run_text(const char *text, const char *name, int hardcore, LessonMode mode, int time_limit)
+{
+    (void)lesson_run_text_score(text, name, hardcore, mode, time_limit);
 }
 
 void lesson_select_menu(const char *dir, const Settings *s, const AppConfig *cfg)

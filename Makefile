@@ -3,7 +3,7 @@
 BUILD_DIR = build
 OBJ_DIR   = $(BUILD_DIR)/obj
 
-SRC = src/main.c src/lesson.c src/lessons.c src/menu.c src/settings.c src/config.c src/stats.c src/ui.c src/heatmap.c
+SRC = src/main.c src/lesson.c src/lessons.c src/menu.c src/settings.c src/config.c src/challenge.c src/stats.c src/ui.c src/heatmap.c
 OBJ = $(patsubst src/%.c, $(OBJ_DIR)/%.o, $(SRC))
 
 all: check-deps $(BUILD_DIR)/typecode
@@ -53,6 +53,7 @@ coverage: check-deps
 	  --filter src/lesson.c --filter src/lessons.c \
 	  --filter src/settings.c --filter src/stats.c \
 	  --filter src/config.c --filter src/heatmap.c \
+	  --filter src/challenge.c \
 	  --print-summary --fail-under-line 60
 	@rm -f $(BUILD_DIR)/*.gcda $(BUILD_DIR)/*.gcno
 
